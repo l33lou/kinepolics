@@ -1,0 +1,1133 @@
+/* ==========================================================================
+   1. RESET & DESIGN SYSTEM VARIABLES
+   ========================================================================== */
+:root {
+  --bg-main: #090a0d;
+  --bg-card: #13151b;
+  --bg-card-hover: #1a1d26;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  
+  --maroon-bg: #601424;
+  --maroon-hover: #7b1a2f;
+  --maroon-active: rgba(255, 255, 255, 0.22);
+  --accent-gold: #eab308;
+  
+  --font-brand: 'Cinzel', serif, system-ui;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --radius-full: 9999px;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. TOP UTILITY BAR
+   ========================================================================== */
+/* Top Bar Container */
+.top-utility-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 20px;
+  /* background-color: #121212;  Dark contrast background */
+}
+
+.utility-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@font-face {
+  font-family: 'Limelight';
+  src: url('fonts/Limelight-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Limelight Button Base */
+.btn-utility {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: #601424;
+  border: 1px solid #601424;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-family: 'Limelight', cursive, sans-serif;
+}
+
+.btn-utility .utility-icon {
+  stroke: currentColor;
+}
+
+/* Limelight Hover Effect */
+.btn-utility:hover {
+  background-color: #7b1a2f;
+  color: #121212;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6); /* Glow */
+}
+
+/* Cart Counter Badge */
+.cart-count {
+  background-color: #eab308;
+  color: #121212;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  margin-left: 2px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Inverse Cart Counter on Hover */
+.btn-utility:hover .cart-count {
+  background-color: #121212;
+  color: #eab308;
+}
+/* ==========================================================================
+   3. HERO POSTER HEADER
+   ========================================================================== */
+.hero-poster {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5rem 1rem 1.75rem;
+  
+}
+
+/* ==========================================================================
+   3. HERO POSTER HEADER
+   ========================================================================== */
+.hero-poster {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5rem 1rem 1.75rem;
+}
+
+/* --- Logo Container & Pseudo-element --- */
+.logo-container {
+  position: relative; /* Essential for absolute positioning of ::before */
+  display: inline-block;
+}
+
+.logo-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;  /* Adjust width of the round glow */
+  height: 160px; /* Adjust height for circular/elliptical shape */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  z-index: -1;   /* Places it behind the text */
+  pointer-events: none;
+}
+
+.poster-title {
+  font-family: var(--font-brand);
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.8);
+  margin-top: 0.5rem;
+}
+
+/* Vintage Film Strip Wrapper */
+.film-strip-container {
+  width: 100%;
+  background-color: #0d0d0d;
+  position: relative;
+  padding: 18px 0;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+  overflow-x: auto;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Sprocket Holes (Top & Bottom Perforations) */
+.film-strip-container::before,
+.film-strip-container::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    #333 0px,
+    #333 12px,
+    transparent 12px,
+    transparent 24px
+  );
+}
+
+.film-strip-container::before {
+  top: 4px;
+}
+
+.film-strip-container::after {
+  bottom: 4px;
+}
+
+/* Film Track */
+.film-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+}
+
+/* Individual Film Frame */
+.film-frame {
+  position: relative;
+  width: 220px;
+  height: 120px;
+  background-color: #181818;
+  border: 2px solid #2a2a2a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-decoration: none;
+  color: #c5b39a;
+  text-align: center;
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 0.95rem;
+  transition: all 0.25s ease-in-out;
+}
+
+/* Vintage Frame Edge Separation */
+.film-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: -8px;
+  width: 2px;
+  background-color: #222;
+}
+
+/* Frame Numbering */
+.frame-num {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: #d4a359;
+  opacity: 0.6;
+  letter-spacing: 1px;
+}
+
+/* Hover & Active States */
+.film-frame:hover,
+.film-frame.active {
+  background-color: #261a1c;
+  border-color: #8b263e;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(139, 38, 62, 0.5);
+  transform: translateY(-2px);
+}
+
+.film-frame:hover .frame-num,
+.film-frame.active .frame-num {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   5. MAIN CONTENT & GRID LAYOUTS
+   ========================================================================== */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-header h2 {
+  font-family: var(--font-brand);
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.section-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Movie Cards Grid */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+.movie-card {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--bg-card-hover);
+}
+
+.movie-poster-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+}
+
+.movie-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: var(--maroon-bg);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.movie-info {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.movie-info h3 {
+  font-size: 1.25rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.movie-meta {
+  font-size: 0.82rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.movie-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.vote-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+}
+
+.btn-vote {
+  background-color: var(--maroon-bg);
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-vote:hover {
+  background-color: var(--maroon-hover);
+}
+
+.vote-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Popcorn & History Sections */
+.snack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 colonnes égales */
+  gap: 1.5rem;
+}
+
+/* Sur mobile, passage en 1 colonne pour rester lisible */
+@media (max-width: 768px) {
+  .snack-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* History Items (conservent le style classique) */
+.history-item {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+}
+
+/* Snack Cards (style pellicule vintage assorti au menu) */
+.snack-card {
+  background-color: #181818;
+  border: 2px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 1.25rem;
+  position: relative;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.snack-card:hover {
+  background-color: #261a1c;
+  border-color: #8b263e;
+  box-shadow: 0 0 18px rgba(139, 38, 62, 0.5);
+  transform: translateY(-2px);
+}
+
+.snack-card .snack-name {
+  font-family: 'Limelight', serif, sans-serif;
+  color: #c5b39a;
+  font-size: 1.35rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.snack-card:hover .snack-name {
+  color: #ffffff;
+}
+
+.snack-card .btn-add-snack,
+.snack-card .btn-secondary {
+  background-color: #601424;
+  color: #ffffff;
+  border: 1px solid #8b263e;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: 'Limelight', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.snack-card .btn-add-snack:hover,
+.snack-card .btn-secondary:hover {
+  background-color: #7b1a2f;
+  color: #ffffff;
+  border-color: #eab308;
+  box-shadow: 0 0 12px rgba(123, 26, 47, 0.8);
+}
+
+.snack-card .price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin: 0.5rem 0 1rem;
+}
+
+.btn-add-cart {
+  width: 100%;
+  background-color: #252833;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-add-cart:hover {
+  background-color: #313543;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: #050608;
+}
+
+/* ==========================================================================
+   6. MOBILE RESPONSIVENESS (MAX-WIDTH: 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero-poster {
+    min-height: 270px;
+    padding: 1.5rem 0.75rem 1.25rem;
+  }
+
+  .poster-nav {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .poster-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-pill {
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .main-content {
+    padding: 1.75rem 1rem 3rem;
+  }
+
+  .movie-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Tab Navigation & Visibility
+   ========================================================================== */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeInTab 0.3s ease-in-out;
+}
+
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Banner Poster Image */
+.banner-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 15px 0 25px;
+}
+
+.banner-image {
+  max-width: 640px;
+  width: 92%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85), 0 0 25px rgba(234, 179, 8, 0.15);
+  opacity: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.banner-image:hover {
+  transform: scale(1.01);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), 0 0 30px rgba(234, 179, 8, 0.25);
+}
+
+/* 1. Load the custom font file from your assets/fonts directory */
+@font-face {
+  font-family: 'EFCO Brooshire';
+  src: url('fonts/EFCO-Brookshire.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. Target the poster title */
+.hero-content .poster-title {
+  font-family: 'EFCO Brooshire', display, sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  letter-spacing: 2px;
+}
+
+/* ==========================================================================
+   Category Filters
+   ========================================================================== */
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.category-btn,
+.filter-chip {
+  background-color: #1a1d26;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-btn:hover,
+.filter-chip:hover,
+.category-btn.active,
+.filter-chip.active {
+  background-color: var(--maroon-bg);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(96, 20, 36, 0.5);
+}
+
+/* ==========================================================================
+   Vote Meter & Details
+   ========================================================================== */
+.movie-vote-meter {
+  margin: 0.75rem 0 1rem;
+}
+
+.vote-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.vote-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vote-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #eab308, #f59e0b);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.badge-genre, .badge-runtime {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+.movie-overlay-badges {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   Cart Drawer & Backdrop
+   ========================================================================== */
+.cart-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.cart-backdrop.hidden {
+  display: none;
+}
+
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background-color: #12141a;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cart-drawer.open {
+  transform: translateX(0);
+}
+
+.cart-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cart-drawer-header h2 {
+  font-family: var(--font-brand);
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.btn-close-drawer {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-close-drawer:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cart-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+.empty-cart-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-cart-message span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.cart-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cart-item-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.cart-item-price {
+  font-size: 0.82rem;
+  color: var(--accent-gold);
+}
+
+.cart-qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  background-color: #202430;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.qty-btn:hover {
+  background-color: var(--maroon-bg);
+}
+
+.cart-item-qty {
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+.cart-drawer-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #0d0f14;
+}
+
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cart-total-row span:first-child {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.cart-total-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+}
+
+.cart-checkout-name {
+  margin-bottom: 1rem;
+}
+
+.cart-checkout-name label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.cart-checkout-name input {
+  width: 100%;
+  background-color: #1a1d26;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.cart-checkout-name input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+
+.btn-place-order {
+  width: 100%;
+  background-color: var(--maroon-bg);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-place-order:hover:not(:disabled) {
+  background-color: var(--maroon-hover);
+  box-shadow: 0 0 15px rgba(96, 20, 36, 0.6);
+}
+
+.btn-place-order:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Order Success Modal
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.modal-card {
+  background-color: #151821;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  max-width: 460px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-card h2 {
+  font-family: var(--font-brand);
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ticket-pass-badge {
+  display: inline-block;
+  background-color: var(--maroon-bg);
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  letter-spacing: 2px;
+  margin: 1rem 0;
+}
+
+.ticket-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Ticket Cards in History Tab
+   ========================================================================== */
+.tickets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.ticket-card {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ticket-code {
+  font-family: monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.ticket-status {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-pending { background-color: rgba(234, 179, 8, 0.2); color: #facc15; }
+.status-preparing { background-color: rgba(249, 115, 22, 0.2); color: #fb923c; }
+.status-ready { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.status-collected { background-color: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: #1e222d;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+  animation: toastIn 0.25s ease-out;
+}
+
+@keyframes toastIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast.success { border-left: 4px solid #22c55e; }
+.toast.error { border-left: 4px solid #ef4444; }
+.toast.info { border-left: 4px solid #3b82f6; }
+
+/* ==========================================================================
+   Movie Suggestions & Screened Counter Badges
+   ========================================================================== */
+.btn-suggest-primary {
+  background-color: var(--maroon-bg);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(96, 20, 36, 0.45);
+}
+
+.btn-suggest-primary:hover {
+  background-color: var(--maroon-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(96, 20, 36, 0.7);
+}
+
+.badge-screened {
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  color: #facc15;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-unscreened {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-suggested-by {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.chip-screened {
+  border-color: rgba(234, 179, 8, 0.4) !important;
+}
+
+.chip-screened.active {
+  background-color: #eab308 !important;
+  color: #121212 !important;
+  font-weight: 700 !important;
+}
+
+.modal-suggest-card {
+  max-width: 540px;
+}
+
+.movie-top-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.genre-filters-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+
+
+
