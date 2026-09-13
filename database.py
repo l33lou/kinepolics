@@ -258,7 +258,7 @@ def get_kinepolics_movie_suggestions():
         ("Hereditary", 2018, "Horreur", "2h 07m", "Après le décès de leur grand-mère, une famille découvre de terrifiants secrets ancestraux.", "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=600", 1),
         ("Conjuring", 2013, "Horreur", "1h 52m", "Les chasseurs de fantômes Ed et Lorraine Warren viennent en aide à une famille terrorisée.", "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=600", 0),
         ("The Blair Witch Project", 1999, "Horreur", "1h 21m", "Trois étudiants en cinéma disparaissent dans une forêt réputée hantée.", "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600", 0),
-        ("Sans un bruit (A Quiet Place)", 2018, "Horreur", "1h 30m", "Une famille doit vivre dans le silence le plus absolu pour échapper à des créatures aveugles.", "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=600", 0),
+        ("Sans un bruit", 2018, "Horreur", "1h 30m", "Une famille doit vivre dans le silence le plus absolu pour échapper à des créatures aveugles.", "https://images.unsplash.com/photo-1509281373149-e957c6296406?w=600", 0),
         ("Le Silence des agneaux", 1991, "Horreur", "1h 58m", "Clarice Starling consulte le Dr Hannibal Lecter pour traquer un tueur en série.", "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600", 0),
         ("The Perfection", 2018, "Horreur", "1h 30m", "Une violoncelliste prodigieuse renoue avec ses anciens mentors, déclenchant une spirale de vengeance.", "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600", 0),
 

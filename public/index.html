@@ -207,39 +207,13 @@
 
       <form id="suggest-movie-form" style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
         <div>
-          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Titre du film *</label>
-          <input type="text" id="suggest-title-input" required placeholder="Ex: Interstellar, La La Land..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; color: #fff;" />
-        </div>
-
-        <div style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Genre</label>
-            <select id="suggest-genre-select" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; color: #fff;">
-              <option value="Films cultes">Films cultes</option>
-              <option value="Horreur">Horreur</option>
-              <option value="Animation">Animation</option>
-              <option value="Drames">Drames</option>
-              <option value="Action">Action</option>
-              <option value="Comédie">Comédie</option>
-              <option value="Romance">Romance</option>
-              <option value="Fantasy & Sci-Fi">Fantasy & Sci-Fi</option>
-              <option value="Comédie musicale">Comédie musicale</option>
-            </select>
-          </div>
-          <div style="width: 110px;">
-            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Année</label>
-            <input type="number" id="suggest-year-input" placeholder="2024" min="1900" max="2027" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; color: #fff;" />
-          </div>
-        </div>
-
-        <div>
-          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Synopsis ou rapide résumé</label>
-          <textarea id="suggest-synopsis-input" rows="3" placeholder="Pourquoi ce film serait génial en séance amphi..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; color: #fff; font-family: inherit; resize: vertical;"></textarea>
+          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Titre du film (français ou anglais) *</label>
+          <input type="text" id="suggest-title-input" required placeholder="Ex: Inception, Fight Club, Le Voyage de Chihiro..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
         </div>
 
         <div>
           <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Proposé par (ton nom/pseudo)</label>
-          <input type="text" id="suggest-author-input" placeholder="Ex: Clara" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px; color: #fff;" />
+          <input type="text" id="suggest-author-input" placeholder="Ex: Clara" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 0.5rem;">

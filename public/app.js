@@ -577,52 +577,49 @@
 
   // ----------------- Suggest a Movie -----------------
 
-  async function handleSuggestMovie(e) {
+  async function handleSuggestMovieSubmit(e) {
     e.preventDefault();
 
-    const title = elements.suggestTitleInput ? elements.suggestTitleInput.value.trim() : '';
+    const titleInput = document.getElementById('suggest-title-input');
+    const authorInput = document.getElementById('suggest-author-input');
+    const modal = document.getElementById('suggest-movie-modal');
+
+    const title = titleInput ? titleInput.value.trim() : '';
     if (!title) {
       showToast('Le titre du film est obligatoire.', 'error');
       return;
     }
 
-    const genre = elements.suggestGenreSelect ? elements.suggestGenreSelect.value : 'Suggestions';
-    const year = elements.suggestYearInput ? elements.suggestYearInput.value : null;
-    const synopsis = elements.suggestSynopsisInput ? elements.suggestSynopsisInput.value.trim() : '';
-    const suggestedBy = elements.suggestAuthorInput ? elements.suggestAuthorInput.value.trim() : '';
+    const payload = {
+      title: title,
+      suggested_by: authorInput ? authorInput.value.trim() : state.username,
+    };
 
-    if (suggestedBy) setUsername(suggestedBy);
+    if (payload.suggested_by) {
+      setUsername(payload.suggested_by);
+    }
 
     try {
       const res = await fetch('/api/movies/suggest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title,
-          genre: genre,
-          year: year ? parseInt(year, 10) : null,
-          synopsis: synopsis || undefined,
-          suggested_by: suggestedBy || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-
-      if (data.already_exists) {
-        showToast(data.message || 'Ce film est déjà dans la liste !', 'info');
-      } else if (data.success) {
-        showToast(data.message || 'Film ajouté avec succès !', 'success');
-        // Reset form & close modal
-        if (elements.suggestMovieForm) elements.suggestMovieForm.reset();
-        if (elements.suggestMovieModal) elements.suggestMovieModal.classList.add('hidden');
-        // Reload movie list
-        loadMovies();
-      } else {
-        showToast(data.error || 'Erreur lors de l\'ajout du film.', 'error');
+      if (!res.ok) {
+        showToast(data.error || 'Erreur lors de la suggestion.', 'error');
+        return;
       }
+
+      showToast(data.message || 'Film récupéré et ajouté aux suggestions !', 'success');
+      if (titleInput) titleInput.value = '';
+      if (modal) modal.classList.add('hidden');
+
+      loadMovies();
     } catch (err) {
-      console.error('Error suggesting movie:', err);
-      showToast('Erreur réseau. Vérifiez votre connexion.', 'error');
+      console.error(err);
+      showToast('Erreur de connexion lors de la suggestion.', 'error');
     }
   }
 

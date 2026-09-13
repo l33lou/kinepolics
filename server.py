@@ -7,6 +7,8 @@ import urllib.parse
 import random
 import string
 from database import get_db, init_db
+import urllib.request
+import urllib.parse
 
 PORT = 8000
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -201,80 +203,46 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         if not title:
             return self.send_json({"error": "Le titre du film est obligatoire."}, 400)
 
-        genre = str(data.get("genre", "Suggestions")).strip() or "Suggestions"
-        year = data.get("year")
-        try:
-            year = int(year) if year else None
-        except (ValueError, TypeError):
-            year = None
-
-        synopsis = str(data.get("synopsis", "Suggestion proposée par un étudiant.")).strip() or "Suggestion proposée par un étudiant."
         suggested_by = str(data.get("suggested_by", "")).strip() or None
-        poster_url = str(data.get("poster_url", "")).strip() or "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&auto=format&fit=crop&q=80"
-        runtime = str(data.get("runtime", "2h 00m")).strip() or "2h 00m"
 
         conn = get_db()
         cursor = conn.cursor()
 
-        # Check if movie already exists
-        cursor.execute("SELECT id, title, screened_count FROM movies WHERE LOWER(title) = LOWER(?)", (title,))
+        # Vérifier si le film existe déjà en BDD
+        cursor.execute("SELECT id, title FROM movies WHERE LOWER(title) = LOWER(?)", (title,))
         existing = cursor.fetchone()
         if existing:
             conn.close()
             return self.send_json({
                 "success": False,
                 "already_exists": True,
-                "movie_id": existing["id"],
-                "message": f"'{existing['title']}' est déjà dans la liste des suggestions ! Vous pouvez voter pour ce film."
+                "message": f"« {existing['title']} » est déjà dans la liste des suggestions !"
             }, 200)
+
+        # Récupération TMDB avec valeurs par défaut de secours
+        tmdb_info = fetch_movie_from_tmdb(title) or {}
+        
+        final_title = tmdb_info.get("title", title)
+        year = tmdb_info.get("year")
+        synopsis = tmdb_info.get("synopsis", "Aucun synopsis disponible.")
+        poster_url = tmdb_info.get("poster_url") or "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600"
+        genre = tmdb_info.get("genre", "Films cultes")
+        runtime = tmdb_info.get("runtime", "2h 00m")
 
         cursor.execute("""
             INSERT INTO movies (title, year, genre, runtime, synopsis, poster_url, screened_count, suggested_by, is_active)
             VALUES (?, ?, ?, ?, ?, ?, 0, ?, 1)
-        """, (title, year, genre, runtime, synopsis, poster_url, suggested_by))
+        """, (final_title, year, genre, runtime, synopsis, poster_url, suggested_by))
+        
         conn.commit()
         movie_id = cursor.lastrowid
-
-        # If submitter name provided, automatically register their vote for their own suggestion
-        if suggested_by:
-            try:
-                cursor.execute("SELECT id FROM votes WHERE LOWER(voter_name) = LOWER(?)", (suggested_by,))
-                v = cursor.fetchone()
-                if v:
-                    cursor.execute("UPDATE votes SET movie_id = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?", (movie_id, v["id"]))
-                else:
-                    cursor.execute("INSERT INTO votes (voter_name, movie_id) VALUES (?, ?)", (suggested_by, movie_id))
-                conn.commit()
-            except Exception:
-                pass
-
         conn.close()
 
         self.send_json({
             "success": True,
             "movie_id": movie_id,
-            "message": f"Merci ! Le film '{title}' a été ajouté aux suggestions !"
+            "message": f"✨ « {final_title} » a été ajouté aux suggestions !"
         }, 201)
-
-    def handle_post_increment_screened(self, movie_id):
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, title, screened_count FROM movies WHERE id = ?", (movie_id,))
-        m = cursor.fetchone()
-        if not m:
-            conn.close()
-            return self.send_json({"error": "Film non trouvé"}, 404)
-
-        new_count = (m["screened_count"] or 0) + 1
-        cursor.execute("UPDATE movies SET screened_count = ? WHERE id = ?", (new_count, movie_id))
-        conn.commit()
-        conn.close()
-        self.send_json({
-            "success": True,
-            "movie_id": movie_id,
-            "screened_count": new_count,
-            "message": f"Compteur de projection mis à jour pour '{m['title']}' : {new_count} fois."
-        })
 
     def handle_post_vote(self):
         data = self.parse_json_body()
@@ -835,3 +803,41 @@ if __name__ == "__main__":
             pass
     run_server(port)
 
+#getting movie info from themoviedb.org
+
+TMDB_API_KEY = "36714c952f9cd9e486626a91fd3d16fe"
+
+def fetch_movie_from_tmdb(title):
+    if not TMDB_API_KEY or TMDB_API_KEY == "TA_CLE_API_TMDB_ICI":
+        return None
+
+    try:
+        query = urllib.parse.quote(title)
+        url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&query={query}&language=fr-FR"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            results = data.get("results", [])
+            
+            if results:
+                movie = results[0]
+                poster_path = movie.get("poster_path")
+                poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
+                synopsis = movie.get("overview") or "Aucun synopsis disponible."
+                
+                release_date = movie.get("release_date", "")
+                year = int(release_date.split("-")[0]) if release_date and len(release_date) >= 4 else None
+                
+                return {
+                    "title": movie.get("title") or title,
+                    "poster_url": poster_url,
+                    "synopsis": synopsis,
+                    "year": year,
+                    "genre": "Films cultes",
+                    "runtime": "2h 00m"
+                }
+    except Exception as e:
+        print(f"Erreur TMDB pour '{title}' : {e}")
+    
+    return None
