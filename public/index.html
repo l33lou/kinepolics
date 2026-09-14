@@ -206,9 +206,25 @@
       </p>
 
       <form id="suggest-movie-form" style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Titre du film (français ou anglais) *</label>
-          <input type="text" id="suggest-title-input" required placeholder="Ex: Inception, Fight Club, Le Voyage de Chihiro..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+        <!-- Champ de recherche avec dropdown d'autocomplétion -->
+        <div style="position: relative;">
+          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Rechercher un film (TMDB) *</label>
+          <input type="text" id="suggest-title-input" required autocomplete="off" placeholder="Tapez le titre (ex: Inception, Avatar...)" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+          
+          <!-- Dropdown des candidats TMDB -->
+          <div id="suggest-results-dropdown" class="suggest-dropdown hidden"></div>
+        </div>
+
+        <!-- Zone d'aperçu du film sélectionné -->
+        <div id="suggest-preview-container" class="suggest-preview hidden">
+          <img id="suggest-preview-poster" src="" alt="Poster preview" class="suggest-preview-poster" />
+          <div class="suggest-preview-info">
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+              <h4 id="suggest-preview-title" style="color: #fff; font-size: 1.1rem; font-weight: 700;"></h4>
+              <span id="suggest-preview-year" style="color: var(--accent-gold); font-size: 0.85rem; font-weight: 600;"></span>
+            </div>
+            <p id="suggest-preview-synopsis" style="color: var(--text-muted); font-size: 0.82rem; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"></p>
+          </div>
         </div>
 
         <div>
@@ -218,7 +234,7 @@
 
         <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
           <button type="button" class="btn-utility" id="close-suggest-modal-btn" style="flex: 1; justify-content: center;">Annuler</button>
-          <button type="submit" class="btn-suggest-primary" style="flex: 2; justify-content: center;">Soumettre le film ✨</button>
+          <button type="submit" class="btn-suggest-primary" id="submit-suggest-btn" disabled style="flex: 2; justify-content: center; opacity: 0.5; cursor: not-allowed;">Confirmer & Ajouter ✨</button>
         </div>
       </form>
     </div>

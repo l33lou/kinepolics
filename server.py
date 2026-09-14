@@ -57,6 +57,9 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         # API Routes
         if path == "/api/movies":
             self.handle_get_movies()
+        elif path == "/api/tmdb/search":  # <-- AJOUTER CETTE ROUTE
+            query_str = query.get("query", [""])[0]
+            self.handle_get_tmdb_search(query_str)
         elif path == "/api/products":
             self.handle_get_products()
         elif path == "/api/orders":
@@ -194,6 +197,42 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
             "genres": genres
         })
 
+    def handle_get_tmdb_search(self, query):
+            """Recherche en direct sur TMDB pour l'autocomplétion de la modale."""
+            if not query or len(query.strip()) < 2:
+                return self.send_json({"results": []})
+
+            if not TMDB_API_KEY or TMDB_API_KEY == "TA_CLE_API_TMDB_ICI":
+                return self.send_json({"results": []})
+
+            try:
+                encoded_query = urllib.parse.quote(query.strip())
+                url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&query={encoded_query}&language=fr-FR"
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                    raw_results = data.get("results", [])[:5]  # Limiter aux 5 premiers candidats
+
+                    candidates = []
+                    for m in raw_results:
+                        poster_path = m.get("poster_path")
+                        release_date = m.get("release_date", "")
+                        year = int(release_date.split("-")[0]) if release_date and len(release_date) >= 4 else None
+
+                        candidates.append({
+                            "id": m.get("id"),
+                            "title": m.get("title") or m.get("original_title"),
+                            "year": year,
+                            "synopsis": m.get("overview") or "Aucun synopsis disponible.",
+                            "poster_url": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600"
+                        })
+
+                    return self.send_json({"results": candidates})
+            except Exception as e:
+                print(f"Erreur recherche TMDB : {e}")
+                return self.send_json({"results": []})
+
     def handle_post_suggest_movie(self):
         data = self.parse_json_body()
         if not data:
@@ -204,6 +243,9 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
             return self.send_json({"error": "Le titre du film est obligatoire."}, 400)
 
         suggested_by = str(data.get("suggested_by", "")).strip() or None
+        year = data.get("year")
+        synopsis = str(data.get("synopsis", "Aucun synopsis disponible.")).strip()
+        poster_url = str(data.get("poster_url", "")).strip() or "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600"
 
         conn = get_db()
         cursor = conn.cursor()
@@ -219,21 +261,11 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
                 "message": f"« {existing['title']} » est déjà dans la liste des suggestions !"
             }, 200)
 
-        # Récupération TMDB avec valeurs par défaut de secours
-        tmdb_info = fetch_movie_from_tmdb(title) or {}
-        
-        final_title = tmdb_info.get("title", title)
-        year = tmdb_info.get("year")
-        synopsis = tmdb_info.get("synopsis", "Aucun synopsis disponible.")
-        poster_url = tmdb_info.get("poster_url") or "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600"
-        genre = tmdb_info.get("genre", "Films cultes")
-        runtime = tmdb_info.get("runtime", "2h 00m")
-
         cursor.execute("""
             INSERT INTO movies (title, year, genre, runtime, synopsis, poster_url, screened_count, suggested_by, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, 0, ?, 1)
-        """, (final_title, year, genre, runtime, synopsis, poster_url, suggested_by))
-        
+            VALUES (?, ?, 'Films cultes', '2h 00m', ?, ?, 0, ?, 1)
+        """, (title, year, synopsis, poster_url, suggested_by))
+
         conn.commit()
         movie_id = cursor.lastrowid
         conn.close()
@@ -241,7 +273,7 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_json({
             "success": True,
             "movie_id": movie_id,
-            "message": f"✨ « {final_title} » a été ajouté aux suggestions !"
+            "message": f"✨ « {title} » a été ajouté aux suggestions !"
         }, 201)
 
     def handle_post_vote(self):
@@ -267,7 +299,7 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         if existing_vote:
             # Change vote or prevent? Let's allow changing vote with clear message
             cursor.execute("UPDATE votes SET movie_id = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?", 
-                           (movie_id, existing_vote["id"]))
+                        (movie_id, existing_vote["id"]))
             conn.commit()
             conn.close()
             return self.send_json({
@@ -748,38 +780,45 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
     # ----------------- Static Asset Serving -----------------
 
     def serve_static(self, path):
-        if path in ("", "/"):
-            path = "/index.html"
-        elif path == "/favicon.ico":
-            path = "/visuals/logo_kinepolics.png"
+        """Sert les fichiers statiques du dossier public/ (HTML, CSS, JS, images)."""
+        if path == "/" or not path:
+            filename = "index.html"
+        else:
+            filename = path.split("?")[0].lstrip("/")
 
-        # Sanitize path to prevent directory traversal
-        clean_path = os.path.normpath(path.lstrip("/"))
-        file_path = os.path.join(PUBLIC_DIR, clean_path)
-
-        if not os.path.isfile(file_path):
-            self.send_response(404)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
+        # Nettoyage et sécurité contre le Directory Traversal
+        filename = os.path.normpath(filename)
+        if filename.startswith(".."):
+            self.send_response(403)
             self.end_headers()
-            self.wfile.write(b"404 Not Found")
             return
 
-        mime_type, _ = mimetypes.guess_type(file_path)
-        if not mime_type:
-            mime_type = "application/octet-stream"
+        # Cherche d'abord dans PUBLIC_DIR (public/), puis dans BASE_DIR en secours
+        filepath = os.path.join(PUBLIC_DIR, filename)
+        if not os.path.exists(filepath):
+            filepath = os.path.join(BASE_DIR, filename)
+
+        if not os.path.exists(filepath) or os.path.isdir(filepath):
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        mime_type, _ = mimetypes.guess_type(filepath)
+        mime_type = mime_type or "application/octet-stream"
 
         try:
-            with open(file_path, "rb") as f:
+            with open(filepath, "rb") as f:
                 content = f.read()
+
             self.send_response(200)
-            self.send_header("Content-Type", f"{mime_type}; charset=utf-8" if "text" in mime_type or "javascript" in mime_type else mime_type)
+            self.send_header("Content-Type", mime_type)
             self.send_header("Content-Length", str(len(content)))
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:
+            print(f"Erreur lors de la lecture de {filepath} : {e}")
             self.send_response(500)
             self.end_headers()
-            self.wfile.write(f"500 Internal Server Error: {e}".encode("utf-8"))
 
 def run_server(port=PORT):
     init_db()
@@ -793,16 +832,9 @@ def run_server(port=PORT):
         except KeyboardInterrupt:
             print("\nShutting down server.")
 
-if __name__ == "__main__":
-    import sys
-    port = PORT
-    if len(sys.argv) > 1:
-        try:
-            port = int(sys.argv[1])
-        except ValueError:
-            pass
-    run_server(port)
-
+# ==============================================================================
+# FONCTIONS GLOBALES (0 espace d'indentation, tout à gauche)
+# ==============================================================================
 #getting movie info from themoviedb.org
 
 TMDB_API_KEY = "36714c952f9cd9e486626a91fd3d16fe"
@@ -841,3 +873,14 @@ def fetch_movie_from_tmdb(title):
         print(f"Erreur TMDB pour '{title}' : {e}")
     
     return None
+
+
+if __name__ == "__main__":
+    import sys
+    port = PORT
+    if len(sys.argv) > 1:
+        try:
+            port = int(sys.argv[1])
+        except ValueError:
+            pass
+    run_server(port)

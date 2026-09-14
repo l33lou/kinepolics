@@ -2,8 +2,8 @@
    1. RESET & DESIGN SYSTEM VARIABLES
    ========================================================================== */
 :root {
-  --bg-main: #090a0d;
-  --bg-card: #13151b;
+  --bg-main: #000000;
+  --bg-card: #000000;
   --bg-card-hover: #1a1d26;
   --text-main: #f1f5f9;
   --text-muted: #94a3b8;
@@ -106,38 +106,50 @@ body {
   background-color: #121212;
   color: #eab308;
 }
+
 /* ==========================================================================
-   3. HERO POSTER HEADER
+   3. HERO POSTER HEADER & ANIMATIONS
    ========================================================================== */
+
+/* Hero en plein écran au chargement */
 .hero-poster {
   position: relative;
   width: 100%;
-  min-height: 380px;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 2.5rem 1rem 1.75rem;
-  
+  padding: 2rem 1rem;
+  transition: min-height 0.8s cubic-bezier(0.16, 1, 0.3, 1), padding 0.8s ease;
 }
 
-/* ==========================================================================
-   3. HERO POSTER HEADER
-   ========================================================================== */
-.hero-poster {
-  position: relative;
-  width: 100%;
-  min-height: 380px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2.5rem 1rem 1.75rem;
+.hero-content,
+.banner-wrapper {
+  max-height: 650px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, max-height 0.8s ease, margin 0.6s ease, transform 0.6s ease;
 }
 
-/* --- Logo Container & Pseudo-element --- */
+/* Disparition du titre et de l'affiche lors du scroll ou clic menu */
+body.menu-active .hero-poster {
+  min-height: auto;
+  padding: 1rem 0 0 0;
+}
+
+body.menu-active .hero-content,
+body.menu-active .banner-wrapper {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  transform: translateY(-40px);
+  pointer-events: none;
+}
+
+/* Glow et Titre */
 .logo-container {
-  position: relative; /* Essential for absolute positioning of ::before */
+  position: relative;
   display: inline-block;
 }
 
@@ -147,11 +159,11 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;  /* Adjust width of the round glow */
-  height: 160px; /* Adjust height for circular/elliptical shape */
+  width: 320px;
+  height: 160px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
-  z-index: -1;   /* Places it behind the text */
+  z-index: -1;
   pointer-events: none;
 }
 
@@ -166,19 +178,41 @@ body {
   margin-top: 0.5rem;
 }
 
-/* Vintage Film Strip Wrapper */
+/* Bande de pellicule (Sticky + Animation 3D) */
 .film-strip-container {
+  position: sticky;
+  top: 0;
+  z-index: 999;
   width: 100%;
   background-color: #0d0d0d;
-  position: relative;
   padding: 18px 0;
   border-top: 2px solid #222;
   border-bottom: 2px solid #222;
   overflow-x: auto;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 4px 25px rgba(0, 0, 0, 0.9);
+  transition: all 0.4s ease;
 }
 
-/* Sprocket Holes (Top & Bottom Perforations) */
+.film-strip-container.animating .film-strip {
+  animation: reelSpin 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes reelSpin {
+  0% {
+    transform: perspective(800px) rotateX(90deg) translateY(-20px) scale(0.85);
+    opacity: 0.2;
+  }
+  50% {
+    transform: perspective(800px) rotateX(-15deg) translateY(5px) scale(1.03);
+    opacity: 0.9;
+  }
+  100% {
+    transform: perspective(800px) rotateX(0deg) translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Perforations haut/bas */
 .film-strip-container::before,
 .film-strip-container::after {
   content: '';
@@ -195,15 +229,10 @@ body {
   );
 }
 
-.film-strip-container::before {
-  top: 4px;
-}
+.film-strip-container::before { top: 4px; }
+.film-strip-container::after { bottom: 4px; }
 
-.film-strip-container::after {
-  bottom: 4px;
-}
-
-/* Film Track */
+/* Rail et cadres de la pellicule */
 .film-strip {
   display: flex;
   justify-content: center;
@@ -212,7 +241,6 @@ body {
   padding: 0 20px;
 }
 
-/* Individual Film Frame */
 .film-frame {
   position: relative;
   width: 220px;
@@ -232,7 +260,6 @@ body {
   transition: all 0.25s ease-in-out;
 }
 
-/* Vintage Frame Edge Separation */
 .film-frame::before {
   content: '';
   position: absolute;
@@ -243,7 +270,6 @@ body {
   background-color: #222;
 }
 
-/* Frame Numbering */
 .frame-num {
   position: absolute;
   bottom: 4px;
@@ -255,7 +281,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* Hover & Active States */
 .film-frame:hover,
 .film-frame.active {
   background-color: #261a1c;
@@ -475,6 +500,14 @@ body {
     padding: 1.5rem 0.75rem 1.25rem;
   }
 
+  .hero-content .poster-title {
+    /* 14vw means the font size will be 14% of the screen's total width */
+    font-size: 14vw; 
+    width: 100%;
+    /* Reducing the letter-spacing slightly helps it fit nicely edge-to-edge */
+    letter-spacing: 1px; 
+  }
+
   .poster-nav {
     width: 100%;
     max-width: 100%;
@@ -533,16 +566,11 @@ body {
   height: auto;
   display: block;
   border-radius: 8px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85), 0 0 25px rgba(234, 179, 8, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
   opacity: 1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.banner-image:hover {
-  transform: scale(1.01);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), 0 0 30px rgba(234, 179, 8, 0.25);
-}
 
 /* 1. Load the custom font file from your assets/fonts directory */
 @font-face {
@@ -1085,5 +1113,97 @@ body {
 }
 
 
+/* ==========================================================================
+   DROPDOWN TMDB & APERÇU FILM
+   ========================================================================== */
+.suggest-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #1e222d;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+  margin-top: 4px;
+}
 
+.suggest-dropdown.hidden {
+  display: none;
+}
 
+.suggest-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background-color 0.15s ease;
+}
+
+.suggest-result-item:hover {
+  background-color: #2b3042;
+}
+
+.suggest-result-poster {
+  width: 32px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #000;
+}
+
+.suggest-result-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggest-result-text strong {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.suggest-result-text span {
+  color: var(--accent-gold);
+  font-size: 0.78rem;
+}
+
+.suggest-no-results {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Carte d'aperçu */
+.suggest-preview {
+  display: flex;
+  gap: 12px;
+  background-color: #11131a;
+  border: 1px solid #8b263e;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 4px;
+}
+
+.suggest-preview.hidden {
+  display: none;
+}
+
+.suggest-preview-poster {
+  width: 75px;
+  aspect-ratio: 1 / 1.414;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.suggest-preview-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

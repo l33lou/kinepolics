@@ -36,6 +36,8 @@
     selectedReviewMovieId: null,
     selectedWordCloudMovieId: null,
     currentRating: 5.0,
+    selectedTmdbMovie: null,
+    searchDebounceTimer: null,
   };
 
   // DOM Elements
@@ -349,9 +351,177 @@
 
     // Suggestion Form — Submit
     if (elements.suggestMovieForm) {
-      elements.suggestMovieForm.addEventListener('submit', handleSuggestMovie);
+      elements.suggestMovieForm.addEventListener('submit', handleSuggestMovieSubmit);
+    }
+
+    // ==========================================
+    //  Recherche en direct TMDB dans la modale
+    // ==========================================
+    const suggestInput = document.getElementById('suggest-title-input');
+    if (suggestInput) {
+      suggestInput.addEventListener('input', (e) => {
+        clearTimeout(state.searchDebounceTimer);
+        const query = e.target.value.trim();
+
+        resetSuggestPreview();
+
+        if (query.length < 2) {
+          hideSuggestDropdown();
+          return;
+        }
+
+        state.searchDebounceTimer = setTimeout(() => {
+          fetchTmdbCandidates(query);
+        }, 300);
+      });
+    }
+
+    // Fermer le dropdown si on clique à l'extérieur
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('suggest-results-dropdown');
+      const input = document.getElementById('suggest-title-input');
+      if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+        hideSuggestDropdown();
+      }
+    });
+  }
+
+async function fetchTmdbCandidates(query) {
+    const dropdown = document.getElementById('suggest-results-dropdown');
+    if (!dropdown) return;
+
+    try {
+      const res = await fetch(`/api/tmdb/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const results = data.results || [];
+
+      if (results.length === 0) {
+        dropdown.innerHTML = `<div class="suggest-no-results">Aucun film trouvé sur TMDB</div>`;
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      dropdown.innerHTML = results
+        .map(
+          (m) => `
+        <div class="suggest-result-item" data-tmdb-id="${m.id}">
+          <img src="${escapeHtml(m.poster_url)}" alt="${escapeHtml(m.title)}" class="suggest-result-poster" />
+          <div class="suggest-result-text">
+            <strong>${escapeHtml(m.title)}</strong>
+            <span>${m.year || ''}</span>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+
+      dropdown.classList.remove('hidden');
+
+      dropdown.querySelectorAll('.suggest-result-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+          selectTmdbCandidate(results[index]);
+        });
+      });
+    } catch (err) {
+      console.error('Erreur recherche TMDB', err);
     }
   }
+
+  // ----------------- utilitary fonctions tmdbs -----------------
+
+  function selectTmdbCandidate(movie) {
+    state.selectedTmdbMovie = movie;
+    hideSuggestDropdown();
+
+    const titleInput = document.getElementById('suggest-title-input');
+    const previewContainer = document.getElementById('suggest-preview-container');
+    const previewPoster = document.getElementById('suggest-preview-poster');
+    const previewTitle = document.getElementById('suggest-preview-title');
+    const previewYear = document.getElementById('suggest-preview-year');
+    const previewSynopsis = document.getElementById('suggest-preview-synopsis');
+    const submitBtn = document.getElementById('submit-suggest-btn');
+
+    if (titleInput) titleInput.value = movie.title;
+    if (previewPoster) previewPoster.src = movie.poster_url;
+    if (previewTitle) previewTitle.textContent = movie.title;
+    if (previewYear) previewYear.textContent = movie.year ? `(${movie.year})` : '';
+    if (previewSynopsis) previewSynopsis.textContent = movie.synopsis;
+
+    if (previewContainer) previewContainer.classList.remove('hidden');
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+    }
+  }
+
+  function resetSuggestPreview() {
+    state.selectedTmdbMovie = null;
+    const previewContainer = document.getElementById('suggest-preview-container');
+    const submitBtn = document.getElementById('submit-suggest-btn');
+
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.5';
+      submitBtn.style.cursor = 'not-allowed';
+    }
+  }
+
+  function hideSuggestDropdown() {
+    const dropdown = document.getElementById('suggest-results-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+  }
+
+  async function handleSuggestMovieSubmit(e) {
+    e.preventDefault();
+
+    if (!state.selectedTmdbMovie) {
+      showToast('Veuillez sélectionner un film dans la liste TMDB.', 'error');
+      return;
+    }
+
+    const authorInput = document.getElementById('suggest-author-input');
+    const modal = document.getElementById('suggest-movie-modal');
+
+    const payload = {
+      title: state.selectedTmdbMovie.title,
+      year: state.selectedTmdbMovie.year,
+      synopsis: state.selectedTmdbMovie.synopsis,
+      poster_url: state.selectedTmdbMovie.poster_url,
+      suggested_by: authorInput ? authorInput.value.trim() : state.username,
+    };
+
+    if (payload.suggested_by) {
+      setUsername(payload.suggested_by);
+    }
+
+    try {
+      const res = await fetch('/api/movies/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Erreur lors de la suggestion.', 'error');
+        return;
+      }
+
+      showToast(data.message || 'Film ajouté aux suggestions !', 'success');
+      resetSuggestPreview();
+      document.getElementById('suggest-title-input').value = '';
+      if (modal) modal.classList.add('hidden');
+
+      loadMovies();
+    } catch (err) {
+      console.error(err);
+      showToast('Erreur de connexion.', 'error');
+    }
+  }
+
 
   // ----------------- Toast Notifications -----------------
 
@@ -573,54 +743,6 @@
         </div>
       `)
       .join('');
-  }
-
-  // ----------------- Suggest a Movie -----------------
-
-  async function handleSuggestMovieSubmit(e) {
-    e.preventDefault();
-
-    const titleInput = document.getElementById('suggest-title-input');
-    const authorInput = document.getElementById('suggest-author-input');
-    const modal = document.getElementById('suggest-movie-modal');
-
-    const title = titleInput ? titleInput.value.trim() : '';
-    if (!title) {
-      showToast('Le titre du film est obligatoire.', 'error');
-      return;
-    }
-
-    const payload = {
-      title: title,
-      suggested_by: authorInput ? authorInput.value.trim() : state.username,
-    };
-
-    if (payload.suggested_by) {
-      setUsername(payload.suggested_by);
-    }
-
-    try {
-      const res = await fetch('/api/movies/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || 'Erreur lors de la suggestion.', 'error');
-        return;
-      }
-
-      showToast(data.message || 'Film récupéré et ajouté aux suggestions !', 'success');
-      if (titleInput) titleInput.value = '';
-      if (modal) modal.classList.add('hidden');
-
-      loadMovies();
-    } catch (err) {
-      console.error(err);
-      showToast('Erreur de connexion lors de la suggestion.', 'error');
-    }
   }
 
   // ----------------- Snacks & Concession Stand -----------------
