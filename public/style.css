@@ -500,13 +500,29 @@ body.menu-active .banner-wrapper {
     padding: 1.5rem 0.75rem 1.25rem;
   }
 
-  .hero-content .poster-title {
-    /* 14vw means the font size will be 14% of the screen's total width */
-    font-size: 14vw; 
-    width: 100%;
-    /* Reducing the letter-spacing slightly helps it fit nicely edge-to-edge */
-    letter-spacing: 1px; 
-  }
+/* 1. Constrain the title container to be the exact same size as the picture */
+.hero-content {
+  width: 92%; /* Matches banner-image width */
+  max-width: 640px; /* Matches banner-image max-width[cite: 3] */
+  margin: 0 auto; /* Centers the container */
+  container-type: inline-size; /* Allows the font to scale based on this box's width */
+}
+
+/* 2. Update the title to fill that container */
+.poster-title {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  margin-top: 0.5rem;
+  width: 100%;
+  letter-spacing: 0; /* Remove letter-spacing to prevent overflowing the box */
+  
+  /* 15.5cqi means the font will always take up 15.5% of the container's width, 
+     keeping it perfectly locked to the edges of the image below it */
+  font-size: 15.5cqi; 
+}
 
   .poster-nav {
     width: 100%;
