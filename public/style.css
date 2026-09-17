@@ -608,6 +608,38 @@ body.menu-active .banner-wrapper {
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'zaiwolf-typewriter';
+  src: url('fonts/ZaiWolfsschanzeTypewriter-nAWpO.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'orange-typewriter';
+  src: url('fonts/OrangeTypewriter-nRKnP.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'x-typewriter';
+  src: url('fonts/XTypewriter-R9jA6.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'shine-typewriter';
+  src: url('fonts/ShineTypewriter-lgwzd.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* 2. Target the poster title */
 .hero-content .poster-title {
   font-family: 'EFCO Brooshire', display, sans-serif;
@@ -1415,9 +1447,9 @@ body.menu-active .banner-wrapper {
 
 /* Box-office ticket stamp style date */
 .history-date {
+  font-family: 'orange-typewriter';
   font-size: 0.75rem;
   color: #554d44;
-  font-family: monospace;
   font-weight: 700;
   letter-spacing: 1px;
   background: rgba(44, 38, 33, 0.06);
@@ -1432,17 +1464,16 @@ body.menu-active .banner-wrapper {
   margin-bottom: 0.75rem;
   font-size: 0.8rem;
   color: #665c52;
-  font-family: monospace;
+  font-family: 'orange-typewriter';
 }
 
-/* Stamped Ink Star Rating */
 .history-stars {
-  color: #2C2621; /* Printed ink black/brown instead of yellow */
+  color: #2C2621; /* Dark printed ticket ink */
   font-size: 0.95rem;
-  letter-spacing: 3px;
-  /* Simulates mechanical rubber-stamp bleeding/roughness on paper */
-  text-shadow: 0.5px 0.5px 0px rgba(44, 38, 33, 0.6), -0.5px -0.5px 0px rgba(44, 38, 33, 0.4);
-  opacity: 0.85;
+  letter-spacing: 2px;
+  text-shadow: none; /* Removed the ugly blur/shadow */
+  font-weight: bold; /* Bold gives it a solid, stamped press appearance */
+  opacity: 0.9;
 }
 
 .history-score-num {
