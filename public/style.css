@@ -456,7 +456,6 @@ body.menu-active .banner-wrapper {
 .snack-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
-  border-color: #601424;
 }
 
 .snack-card .btn-add-snack,
@@ -475,10 +474,9 @@ body.menu-active .banner-wrapper {
 
 .snack-card .btn-add-snack:hover,
 .snack-card .btn-secondary:hover {
-  background-color: #601424;
+  background-color: #7A6F66;
   color: #ffffff;
-  border-color: #601424;
-  box-shadow: 0 0 12px rgba(96, 20, 36, 0.4);
+  border-color: #7A6F66;
 }
 
 .snack-header {
@@ -491,10 +489,10 @@ body.menu-active .banner-wrapper {
 }
 
 .snack-price-tag {
-  font-family: 'Limelight', serif, sans-serif;
+  font-family: 'orange-typewriter', serif, sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #601424;
+  color: #7A6F66;
 }
 
 /* 3. Style the Cart Button in the top utility bar to match .btn-suggest-primary */
@@ -511,15 +509,13 @@ body.menu-active .banner-wrapper {
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 15px rgba(96, 20, 36, 0.45);
   font-family: var(--font-body); /* Uses clean modern text font like the suggest button */
 }
 
 .btn-utility.btn-cart:hover {
-  background-color: var(--maroon-hover);
+  background-color: #7A6F66;
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(96, 20, 36, 0.7);
 }
 
 /* Make sure the cart count badge inside matches nicely */
@@ -1360,7 +1356,7 @@ body.menu-active .banner-wrapper {
 
 /* Container label styling */
 .spectateur-label {
-  font-family: var(--font-body);
+  font-family: '';
   font-size: 0.75rem;
   font-weight: 700;
   color: #7A6F66;
@@ -1416,7 +1412,7 @@ body.menu-active .banner-wrapper {
 .history-card {
   background-color: transparent;
   border: none;
-  border-bottom: 2px dashed rgba(44, 38, 33, 0.2); /* Ticket tear-off perforation line */
+  /* border-bottom: 2px dashed rgba(44, 38, 33, 0.2); /* Ticket tear-off perforation line */
   border-radius: 0;
   padding: 0 0 2rem 0;
   position: relative;

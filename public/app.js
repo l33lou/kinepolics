@@ -516,6 +516,12 @@
     }
   }
 
+  const popcornIconSvg = `
+    <svg class="popcorn-icon" xmlns="./visuals/popcorn1.svg" viewBox="0 0 24 24" width="24" height="24">
+      <path fill="currentColor" d="M...z"/>
+    </svg>
+  `;
+
   function renderProducts() {
     if (!elements.snacksGrid) return;
 
@@ -529,7 +535,7 @@
       return {
         size: size,
         price: itemsForSize[0] ? itemsForSize[0].price : 0,
-        emoji: itemsForSize[0] ? itemsForSize[0].emoji : '🍿',
+        emoji: itemsForSize[0] ? itemsForSize[0].emoji : popcornIconSvg,
         sucre: prodSucre,
         sale: prodSale,
       };
@@ -542,7 +548,7 @@
     html += groupedPopcorns.map((group) => `
       <div class="snack-card">
         <div class="snack-header">
-          <span class="snack-emoji">${group.emoji || '🍿'}</span>
+          <span class="snack-emoji">${group.emoji || popcornIconSvg}</span>
           <span class="snack-price-tag">€${group.price.toFixed(2)}</span>
         </div>
 
@@ -558,7 +564,7 @@
     html += otherProducts.map((prod) => `
       <div class="snack-card" data-product-id="${prod.id}">
         <div class="snack-header">
-          <span class="snack-emoji">${prod.emoji || '🍿'}</span>
+          <span class="snack-emoji">${prod.emoji || popcornIconSvg}</span>
           <span class="snack-price-tag">€${prod.price.toFixed(2)}</span>
         </div>
         <h3 class="snack-name">${escapeHtml(prod.name)}</h3>
@@ -592,7 +598,7 @@
         product_id: product.id,
         name: product.name,
         price: product.price,
-        emoji: product.emoji || '🍿',
+        emoji: product.emoji || popcornIconSvg,
         quantity: 1,
       });
     }
@@ -633,7 +639,7 @@
     if (state.cart.length === 0) {
       elements.cartItemsList.innerHTML = `
         <div class="empty-cart-message">
-          <span>🍿</span>
+          <span>${popcornIconSvg}</span>
           <p>Your snack basket is empty.</p>
         </div>
       `;
