@@ -1367,3 +1367,130 @@ body.menu-active .banner-wrapper {
 #loginBtn:hover #user-display-name {
   border-bottom-color: #E7E4E1;
 }
+
+/* ==========================================================
+   VINTAGE CINEMA TICKET / SUBTITLE ARCHIVE STYLE
+   ========================================================== */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.history-card {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px dashed rgba(44, 38, 33, 0.2); /* Ticket tear-off perforation line */
+  border-radius: 0;
+  padding: 0 0 2rem 0;
+  position: relative;
+}
+
+/* Cinematic Subtitle Frame Header */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(44, 38, 33, 0.3); /* Solid subtitle box line */
+  padding-bottom: 6px;
+  margin-bottom: 0.6rem;
+}
+
+/* Movie Title in Authentic Film-Poster / Limelight font */
+.history-movie-title {
+  font-family: 'Limelight', serif, sans-serif;
+  color: #2C2621; /* Dark ticket ink */
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.history-card:hover .history-movie-title {
+  color: #7A6F66;
+}
+
+/* Box-office ticket stamp style date */
+.history-date {
+  font-size: 0.75rem;
+  color: #554d44;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: rgba(44, 38, 33, 0.06);
+  padding: 2px 6px;
+  border: 1px solid rgba(44, 38, 33, 0.15);
+}
+
+.history-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: #665c52;
+  font-family: monospace;
+}
+
+/* Stamped Ink Star Rating */
+.history-stars {
+  color: #2C2621; /* Printed ink black/brown instead of yellow */
+  font-size: 0.95rem;
+  letter-spacing: 3px;
+  /* Simulates mechanical rubber-stamp bleeding/roughness on paper */
+  text-shadow: 0.5px 0.5px 0px rgba(44, 38, 33, 0.6), -0.5px -0.5px 0px rgba(44, 38, 33, 0.4);
+  opacity: 0.85;
+}
+
+.history-score-num {
+  font-weight: 700;
+  color: #2C2621;
+}
+
+/* Minimalist Subtitle Cloud */
+.history-wordcloud-box {
+  background-color: rgba(44, 38, 33, 0.03);
+  border-left: 2px solid #2C2621; /* Subtitle frame margin line */
+  padding: 8px 12px;
+  margin-top: 0.5rem;
+}
+
+.history-wordcloud-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #7a6f66;
+  margin-bottom: 4px;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.wordcloud-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.history-word-tag {
+  background-color: transparent;
+  color: #4a4038;
+  border: none;
+  padding: 0;
+  font-size: 0.78rem;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.history-word-tag::after {
+  content: "/";
+  margin-left: 8px;
+  color: #b5aba1;
+}
+
+.history-word-tag:last-child::after {
+  content: "";
+}

@@ -788,16 +788,16 @@
         <div class="history-card">
           <div class="history-header">
             <h3 class="history-movie-title">${escapeHtml(item.title)}</h3>
-            <span class="history-date">Séance du ${escapeHtml(item.date)}</span>
+            <span class="history-date">${escapeHtml(item.date)}</span>
           </div>
 
           <div class="history-rating-row">
             <span class="history-stars">${starsStr}</span>
-            <span class="history-score-num">${item.rating.toFixed(1)} / 5.0 (Letterboxd)</span>
+            <span class="history-score-num">${item.rating.toFixed(1)} / 5.0  </span>
           </div>
 
           <div class="history-wordcloud-box">
-            <div class="history-wordcloud-title">💬 Nuage de mots Wooclap de la communauté</div>
+            <div class="history-wordcloud-title">Le film en quelques mots</div>
             <div class="wordcloud-tags-container">
               ${item.words.map(w => `<span class="history-word-tag">${escapeHtml(w)}</span>`).join('')}
             </div>
