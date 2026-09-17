@@ -2,16 +2,22 @@
    1. RESET & DESIGN SYSTEM VARIABLES
    ========================================================================== */
 :root {
-  --bg-main: #000000;
-  --bg-card: #000000;
+  --bg-main: #000000; 
+  --bg-card: transparent;
   --bg-card-hover: #1a1d26;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
+  --text-main: #010203;
+  --text-muted: #rgba(255, 255, 255, 0.22);
   
   --maroon-bg: #601424;
   --maroon-hover: #7b1a2f;
   --maroon-active: rgba(255, 255, 255, 0.22);
   --accent-gold: #eab308;
+
+  --maroon-bg: #050404;
+  --maroon-hover: #2C2621;
+  --maroon-active: #7A6F66;
+  --accent-gold: #D1C7BD;
+  --paper-sepia: #E7E4E1;
   
   --font-brand: 'Cinzel', serif, system-ui;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -38,20 +44,7 @@ body {
 /* ==========================================================================
    2. TOP UTILITY BAR
    ========================================================================== */
-/* Top Bar Container */
-.top-utility-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 10px 20px;
-  /* background-color: #121212;  Dark contrast background */
-}
 
-.utility-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 
 @font-face {
   font-family: 'Limelight';
@@ -153,63 +146,64 @@ body.menu-active .banner-wrapper {
   display: inline-block;
 }
 
-.logo-container::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  height: 160px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
-  border-radius: 50%;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.poster-title {
-  font-family: var(--font-brand);
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.12em;
-  text-align: center;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.8);
-  margin-top: 0.5rem;
-}
-
-/* Bande de pellicule (Sticky + Animation 3D) */
-.film-strip-container {
-  position: sticky;
-  top: 0;
-  z-index: 999;
+/* Conteneur du titre prenant toute la largeur du ticket */
+.hero-content {
   width: 100%;
-  background-color: #0d0d0d;
-  padding: 18px 0;
-  border-top: 2px solid #222;
-  border-bottom: 2px solid #222;
-  overflow-x: auto;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 4px 25px rgba(0, 0, 0, 0.9);
-  transition: all 0.4s ease;
+  max-width: 100%; 
+  padding: 0 40px; /* C'est ici que vous définissez l'espace vide à gauche et à droite */
+  margin: 0 auto;
+  container-type: inline-size;
 }
 
-.film-strip-container.animating .film-strip {
-  animation: reelSpin 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* ==========================================================================
+   VINTAGE STAR-SEPARATED MENU & HORIZONTAL LINES
+   ========================================================================== */
+
+.vintage-nav-container {
+  width: 100%;
+  max-width: 640px; /* Matches your poster/title width */
+  margin: 2rem auto;
+  text-align: center;
 }
 
-@keyframes reelSpin {
-  0% {
-    transform: perspective(800px) rotateX(90deg) translateY(-20px) scale(0.85);
-    opacity: 0.2;
-  }
-  50% {
-    transform: perspective(800px) rotateX(-15deg) translateY(5px) scale(1.03);
-    opacity: 0.9;
-  }
-  100% {
-    transform: perspective(800px) rotateX(0deg) translateY(0) scale(1);
-    opacity: 1;
-  }
+/* The double horizontal lines */
+.separator-line {
+  width: 100%;
+  height: 2px;
+  background-color: #2C2621; /* Matches your vintage ink/border tone */
+  margin: 8px 0;
+}
+
+/* Menu links and star layout */
+.vintage-menu-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.vintage-menu-links .nav-link {
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 1rem;
+  color: #2C2621;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.2s ease;
+}
+
+.vintage-menu-links .nav-link:hover,
+.vintage-menu-links .nav-link.active {
+  color: #7A6F66; /* Muted vintage hover color */
+  text-decoration: underline;
+}
+
+.menu-star {
+  color: #7A6F66;
+  font-size: 0.8rem;
+  user-select: none;
 }
 
 /* Perforations haut/bas */
@@ -295,6 +289,7 @@ body.menu-active .banner-wrapper {
   opacity: 1;
 }
 
+
 /* ==========================================================================
    5. MAIN CONTENT & GRID LAYOUTS
    ========================================================================== */
@@ -311,7 +306,7 @@ body.menu-active .banner-wrapper {
 .section-header h2 {
   font-family: var(--font-brand);
   font-size: 1.8rem;
-  color: #ffffff;
+  color: #2C2621;
   margin-bottom: 0.35rem;
 }
 
@@ -320,39 +315,60 @@ body.menu-active .banner-wrapper {
   font-size: 0.95rem;
 }
 
-/* Movie Cards Grid */
-/* Dynamic Responsive Grid */
+/* ==========================================================================
+   Movie cards
+   ========================================================================== */
+/* Add slightly more vertical padding to the container */
 .movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 1.75rem;
-}
-
-/* Horizontal Movie Card */
-.movie-card {
   display: flex;
   flex-direction: row;
-  background-color: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  overflow-x: auto;
+  gap: 1.5rem;
+  padding: 12px 12px 28px 12px; /* Extra room at the bottom for the shadow */
+  margin: 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.movie-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Reduced shadow intensity and increased outer margin */
+.movie-card {
+  flex: 0 0 420px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background-color: #E7E4E1;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  
+  /* Lighter, tighter shadow so it doesn't spill too far or look cropped */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+  
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 6px 8px; /* More margin around the card to prevent clipping */
 }
 
 .movie-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.2);
-  background-color: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
-/* Poster in A4 Ratio */
+/* Strictly locked A4 Poster Ratio independent of text length */
 .movie-poster-wrapper {
   position: relative;
-  width: 180px;
-  min-width: 180px;
-  aspect-ratio: 1 / 1.414;
+  width: 140px;
+  min-width: 140px;
+  aspect-ratio: 2 / 3; /* Standard TMDB portrait movie poster ratio */
   flex-shrink: 0;
-  background-color: #000;
+  background-color: #E7E4E1; 
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  overflow: hidden;
 }
 
 .movie-poster {
@@ -361,134 +377,155 @@ body.menu-active .banner-wrapper {
   object-fit: cover;
 }
 
+/* Text and content area inside the ticket card */
 .movie-info {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   flex: 1;
+  color: #111111;
 }
 
-/* Minimal fallback for extremely narrow screens (<400px) */
-@media (max-width: 400px) {
-  .movie-card {
-    flex-direction: column;
-  }
-  .movie-poster-wrapper {
-    width: 100%;
-    min-width: unset;
-  }
+.movie-info h3 {
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 1.1rem;
+  margin-bottom: 0.25srem;
+  color: #2C2621;
 }
 
+.movie-desc {
+  font-size: 0.85rem;
+  color: #444444;
+  margin-top: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Keeps long descriptions neat */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
+/* ==========================================================================
+   Popcorn cards
+   ========================================================================== */
 
-/* Popcorn & History Sections */
+/* 1. Restore the 3-column layout for the popcorn section */
 .snack-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 colonnes égales */
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
-/* Sur mobile, passage en 1 colonne pour rester lisible */
 @media (max-width: 768px) {
   .snack-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* History Items (conservent le style classique) */
-.history-item {
-  background-color: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1.25rem;
-  border-radius: var(--radius-lg);
-}
-
-/* Snack Cards (style pellicule vintage assorti au menu) */
+/* 2. Fix snack-card size and use a clean radial-gradient punch-out for perforations */
 .snack-card {
-  background-color: #181818;
-  border: 2px solid #2a2a2a;
-  border-radius: 6px;
-  padding: 1.25rem;
   position: relative;
+  background-color: #E7E4E1;
+  border: 1px solid #2C2621;
+  border-radius: 4px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.25s ease-in-out;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  
+  /* Creates clean ticket corner notches without ugly background artifacts */
+  background: 
+    radial-gradient(circle at top left, transparent 8px, #E7E4E1 9px),
+    radial-gradient(circle at top right, transparent 8px, #E7E4E1 9px),
+    radial-gradient(circle at bottom left, transparent 8px, #E7E4E1 9px),
+    radial-gradient(circle at bottom right, transparent 8px, #E7E4E1 9px);
 }
 
-.snack-card:hover {
-  background-color: #261a1c;
-  border-color: #8b263e;
-  box-shadow: 0 0 18px rgba(139, 38, 62, 0.5);
-  transform: translateY(-2px);
+/* Remove the old before/after pseudo elements since the gradient handles it natively now */
+.snack-card::before,
+.snack-card::after {
+  display: none;
 }
 
 .snack-card .snack-name {
   font-family: 'Limelight', serif, sans-serif;
-  color: #c5b39a;
-  font-size: 1.35rem;
+  color: #2C2621;
+  font-size: 1.2rem;
   margin: 0.5rem 0 1rem;
+  text-align: center;
 }
 
-.snack-card:hover .snack-name {
-  color: #ffffff;
+.snack-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  border-color: #601424;
 }
 
 .snack-card .btn-add-snack,
 .snack-card .btn-secondary {
-  background-color: #601424;
-  color: #ffffff;
-  border: 1px solid #8b263e;
-  padding: 8px 12px;
+  background-color: #2C2621;
+  color: #E7E4E1;
+  border: 1px solid #2C2621;
+  padding: 8px 10px;
   border-radius: 4px;
   font-family: 'Limelight', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  text-align: center;
 }
 
 .snack-card .btn-add-snack:hover,
 .snack-card .btn-secondary:hover {
-  background-color: #7b1a2f;
+  background-color: #601424;
   color: #ffffff;
-  border-color: #eab308;
-  box-shadow: 0 0 12px rgba(123, 26, 47, 0.8);
+  border-color: #601424;
+  box-shadow: 0 0 12px rgba(96, 20, 36, 0.4);
 }
 
-.snack-card .price {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--accent-gold);
-  margin: 0.5rem 0 1rem;
-}
-
-.btn-add-cart {
-  width: 100%;
-  background-color: #252833;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 0.6rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-add-cart:hover {
-  background-color: #313543;
-}
-
-.history-list {
+.snack-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dotted #2C2621;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-/* Footer */
-.site-footer {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  background-color: #050608;
+.snack-price-tag {
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #601424;
+}
+
+/* 3. Style the Cart Button in the top utility bar to match .btn-suggest-primary */
+.btn-utility.btn-cart {
+  background-color: var(--maroon-bg);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(96, 20, 36, 0.45);
+  font-family: var(--font-body); /* Uses clean modern text font like the suggest button */
+}
+
+.btn-utility.btn-cart:hover {
+  background-color: var(--maroon-hover);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(96, 20, 36, 0.7);
+}
+
+/* Make sure the cart count badge inside matches nicely */
+.btn-utility.btn-cart .cart-count {
+  background-color: #eab308;
+  color: #121212;
 }
 
 /* ==========================================================================
@@ -499,30 +536,6 @@ body.menu-active .banner-wrapper {
     min-height: 270px;
     padding: 1.5rem 0.75rem 1.25rem;
   }
-
-/* 1. Constrain the title container to be the exact same size as the picture */
-.hero-content {
-  width: 92%; /* Matches banner-image width */
-  max-width: 640px; /* Matches banner-image max-width[cite: 3] */
-  margin: 0 auto; /* Centers the container */
-  container-type: inline-size; /* Allows the font to scale based on this box's width */
-}
-
-/* 2. Update the title to fill that container */
-.poster-title {
-  font-family: var(--font-brand);
-  font-weight: 800;
-  color: #ffffff;
-  text-align: center;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
-  margin-top: 0.5rem;
-  width: 100%;
-  letter-spacing: 0; /* Remove letter-spacing to prevent overflowing the box */
-  
-  /* 15.5cqi means the font will always take up 15.5% of the container's width, 
-     keeping it perfectly locked to the edges of the image below it */
-  font-size: 15.5cqi; 
-}
 
   .poster-nav {
     width: 100%;
@@ -577,14 +590,12 @@ body.menu-active .banner-wrapper {
 }
 
 .banner-image {
-  max-width: 640px;
-  width: 92%;
+  max-width: 740px;
+  width: 100%;
   height: auto;
   display: block;
-  border-radius: 8px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
-  opacity: 1;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0.9;
+  /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
 }
 
 
@@ -600,89 +611,117 @@ body.menu-active .banner-wrapper {
 /* 2. Target the poster title */
 .hero-content .poster-title {
   font-family: 'EFCO Brooshire', display, sans-serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  letter-spacing: 2px;
+  font-weight: normal; /* Custom display fonts usually don't need bold/800 */
+  color: #2C2621; /* Charcoal Sepia */
+  text-shadow: none;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 0;
+  line-height: 1;
+  
+  /* This is the magic unit that will now work to stretch the text */
+  font-size: 16.5cqi; 
+
+  /* --- LIGNE HORIZONTALE --- */
+  border-bottom: 6px double #2C2621; /* L'épaisseur et la couleur de la ligne */
+  padding-bottom: 10px; /* L'espace entre le texte et la ligne */
+  margin-bottom: 20px; /* L'espace entre la ligne et l'image en-dessous */
+}
+
+.hero-content .poster-description {
+  font-family: 'Limelight', serif, sans-serif; /* Application de la police Limelight */
+  color: #000000; /* Texte en noir */
+  font-size: 1rem;
+  text-align: center;
+  line-height: 1.4;
 }
 
 /* ==========================================================================
-   Category Filters
+   MINIMALISTIC SQUARE-PERFORATED FILTER BAR
    ========================================================================== */
-.category-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 1.5rem;
+
+.genre-filters-wrapper {
+  position: relative;
+  margin: 2rem 0;
+  width: 100%;
+  padding: 10px 0;
 }
 
-.category-btn,
-.filter-chip {
-  background-color: #1a1d26;
-  color: var(--text-muted);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.category-btn:hover,
-.filter-chip:hover,
-.category-btn.active,
-.filter-chip.active {
-  background-color: var(--maroon-bg);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 10px rgba(96, 20, 36, 0.5);
-}
-
-/* ==========================================================================
-   Vote Meter & Details
-   ========================================================================== */
-.movie-vote-meter {
-  margin: 0.75rem 0 1rem;
-}
-
-.vote-meter-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.vote-progress-track {
+/* Two horizontal lines made entirely of squares (perforations) */
+.genre-filters-wrapper::before,
+.genre-filters-wrapper::after {
+  content: '';
+  position: absolute;
+  left: 0;
   width: 100%;
   height: 6px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  overflow: hidden;
+  background: repeating-linear-gradient(
+    90deg,
+    #2C2621 0px,
+    #2C2621 6px,
+    transparent 6px,
+    transparent 12px
+  );
 }
 
-.vote-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #eab308, #f59e0b);
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
+.genre-filters-wrapper::before { top: 0; }
+.genre-filters-wrapper::after { bottom: 0; }
 
-.badge-genre, .badge-runtime {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  color: #fff;
-}
-
-.movie-overlay-badges {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
+/* Horizontal scrolling container for the text items */
+#genre-filters {
   display: flex;
-  gap: 6px;
+  overflow-x: auto;
+  align-items: center;
+  gap: 0;
+  padding: 6px 0;
+  scrollbar-width: none; /* Hide scrollbar for a cleaner look */
 }
 
+#genre-filters::-webkit-scrollbar {
+  display: none;
+}
+
+/* Flat text category items (No rounded buttons) */
+#genre-filters .category-btn {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 0.85rem;
+  color: #7A6F66;
+  padding: 4px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: color 0.2s ease;
+  box-shadow: none;
+}
+
+/* Vertical dividing line between each category text */
+#genre-filters .category-btn:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background-color: #2C2621;
+  opacity: 0.3;
+}
+
+/* Hover & Active states */
+#genre-filters .category-btn:hover {
+  color: #2C2621;
+}
+
+#genre-filters .category-btn.active {
+  color: #2C2621;
+  font-weight: bold;
+  text-decoration: underline;
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+}
 /* ==========================================================================
    Cart Drawer & Backdrop
    ========================================================================== */
@@ -1222,4 +1261,109 @@ body.menu-active .banner-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* Le Ticket Géant */
+.website-ticket {
+  background-color: #e7e4e1; /* La couleur papier */
+  
+  /* --- LES 4 PERFORATIONS AUX COINS --- */
+  background-image: 
+    radial-gradient(circle at top left, var(--bg-main) 25px, transparent 26px),
+    radial-gradient(circle at top right, var(--bg-main) 25px, transparent 26px),
+    radial-gradient(circle at bottom left, var(--bg-main) 25px, transparent 26px),
+    radial-gradient(circle at bottom right, var(--bg-main) 25px, transparent 26px);
+  background-position: top left, top right, bottom left, bottom right;
+  background-size: 51% 51%;
+  background-repeat: no-repeat;
+  /* ------------------------------------ */
+
+  width: calc(100% - 40px);
+  margin: 20px auto; 
+  max-width: 850px; 
+  min-height: calc(100vh - 40px);
+  position: relative;
+  
+  /* Une petite ombre noire pour bien détacher le ticket du fond */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); 
+  padding-bottom: 60px;
+}
+
+/* Les encoches de séparation du ticket géant */
+.website-ticket::before,
+.website-ticket::after {
+  content: '';
+  position: absolute;
+  top: 800px; /* Ajuste selon la hauteur de ton image */
+  width: 60px;
+  height: 60px;
+  background-color: #000000; /* Identique au fond du body */
+  border-radius: 50%;
+  z-index: 50;
+}
+
+/* Encoche de gauche */
+.website-ticket::before {
+  left: -30px; /* Le cercle dépasse de moitié à gauche */
+}
+
+/* Encoche de droite */
+.website-ticket::after {
+  right: -30px; /* Le cercle dépasse de moitié à droite */
+}
+
+/* La ligne pointillée transversale */
+.ticket-divider-main {
+  position: absolute;
+  top: 830px; /* Au milieu des encoches (top + 30px) */
+  left: 0;
+  width: 100%;
+  border-top: 4px dotted #222222;
+  opacity: 0.3;
+}
+
+/* ==========================================================================
+   STYLE SPÉCIFIQUE : BOUTON IDENTIFICATION (SPECTATEUR)
+   ========================================================================== */
+
+/* Container label styling */
+.spectateur-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7A6F66;
+  margin-right: 8px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* Button styling without the full-width line */
+#loginBtn {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 4px 6px;
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 1.1rem;
+  color: #000000;
+  letter-spacing: 1px;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+/* Dotted line applied ONLY under the user name text span */
+#user-display-name {
+  border-bottom: 2px dotted #2C2621;
+  padding-bottom: 2px;
+}
+
+/* Hover effects */
+#loginBtn:hover {
+  background-color: #2C2621;
+  color: #E7E4E1;
+}
+
+#loginBtn:hover #user-display-name {
+  border-bottom-color: #E7E4E1;
 }
