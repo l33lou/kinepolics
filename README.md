@@ -16,16 +16,13 @@ Decoupled frontend-backend architecture running on cloud infrastructure:
 * **Database:** SQLite 3 (`cinema.db`).
 * **Integrations:** TMDB (The Movie Database) API for real-time movie search.
 
-Designed without third-party Python web frameworks to rely entirely on standard library HTTP handling.
-
 ---
 
 ## Key Features
 
-* **Movie Suggestions:** Search TMDB in real time and submit film ideas for upcoming screenings.
 * **LetterboCS:** View past screening history, aggregate ratings, and audience feedback word clouds.
-* **Popcorn & Concessions:** Select popcorn sizes and flavors (Sucré / Salé), manage cart items, and place orders.
-* **Ticket Generation:** Creates a unique pickup pass code upon checkout.
+* **Movie Suggestions:** Search TMDB in real time and submit film ideas for upcoming screenings.
+* **Popcorn :** Select popcorn sizes and flavors (Sucré / Salé), manage cart items, and place orders.
 
 ---
 
@@ -42,3 +39,4 @@ student-cinema/
     ├── index.html    # Single-page application markup
     ├── style.css     # Theme stylesheet
     └── app.js        # Client-side state and API request handling
+```
