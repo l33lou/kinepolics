@@ -6,6 +6,7 @@ By logging in as attendee, you can :
 - send movie suggestions via "Vos suggestions"
 - rate a movie you've seen during the movie night via "LetterboCS"
 - order popcorn via "Popcorn"
+
 By logging in as administrator, you can adjust the suggestions, the ratings, and the menu in the Popcorn tab.
 ---
 
