@@ -320,7 +320,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
     }
 
     try {
-      const res = await fetch('${API_BASE_URL}/api/movies/suggest', {
+      const res = await fetch(`${API_BASE_URL}/api/movies/suggest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -439,7 +439,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
 
   async function loadMovies() {
     try {
-      const res = await fetch('${API_BASE_URL}/api/movies');
+      const res = await fetch(`${API_BASE_URL}/api/movies`);
       const data = await res.json();
       state.movies = data.movies || [];
       renderMovies();
@@ -506,7 +506,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
 
   async function loadProducts() {
     try {
-      const res = await fetch('${API_BASE_URL}/api/products');
+      const res = await fetch(`${API_BASE_URL}/api/products`);
       const data = await res.json();
       state.products = data.products || [];
       renderProducts();
@@ -518,11 +518,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
     }
   }
 
-  const popcornIconSvg = `
-    <svg class="popcorn-icon" xmlns="./visuals/popcorn1.svg" viewBox="0 0 24 24" width="24" height="24">
-      <path fill="currentColor" d="M...z"/>
-    </svg>
-  `;
+  const popcornIconSvg = `🍿`;
 
   function renderProducts() {
     if (!elements.snacksGrid) return;
@@ -629,7 +625,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
 
   function updateCartUI() {
     const totalCount = state.cart.reduce((sum, it) => sum + it.quantity, 0);
-    const totalPrice = state.cart.reduce((sum, it) => sum + it.price * it.quantity, 0);
+    const totalPrice = state.cart.reduce((sum, it) => sum + (it.price * it.quantity), 0);
 
     if (elements.headerCartCount) elements.headerCartCount.textContent = totalCount;
     if (elements.cartTotalDisplay) elements.cartTotalDisplay.textContent = `€${totalPrice.toFixed(2)}`;
@@ -716,7 +712,7 @@ const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
         })),
       };
 
-      const res = await fetch('${API_BASE_URL}/api/orders', {
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
