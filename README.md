@@ -11,17 +11,13 @@ By logging in as administrator, you can adjust the suggestions, the ratings, and
 
 ## Quick Start
 
-1. Open your terminal in this directory:
-   ```bash
-   cd /home/leelou/.gemini/antigravity/scratch/student-cinema
-   ```
-
-2. Start the server:
+1. Clone repository in your preferred directory:
+2. Start the server in said directory:
    ```bash
    python3 server.py
    ```
 
-3. Open your browser at:
+4. Open your browser at:
    ```
    http://localhost:8000
    ```
