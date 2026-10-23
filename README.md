@@ -1,5 +1,5 @@
 # KinepoliCS website
-This website has been created to centralise movie suggestions, movie reviews, and popcorn orders.
+This website has been created to centralise movie suggestions, movie reviews, and popcorn orders. You can visit [there](https://kinepolics.pages.dev/).
 
 ## Features 
 By logging in as attendee, you can : 
