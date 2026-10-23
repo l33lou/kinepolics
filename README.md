@@ -20,11 +20,11 @@ Decoupled frontend-backend architecture running on cloud infrastructure:
 
 ## Key Features
 
-1. **LetterboCS:**  
+1. **LetterboCS**  
 View past screening history, aggregate ratings, and audience feedback word clouds.
-2. **Movie Suggestions:**  
+2. **Movie Suggestions**  
 Search TMDB in real time and submit film ideas for upcoming screenings.
-3. **Popcorn :**  
+3. **Popcorn**  
 Select popcorn sizes and flavors (Sucré / Salé), manage cart items, and place orders.
 
 ---
