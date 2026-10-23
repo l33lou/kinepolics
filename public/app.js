@@ -2,7 +2,7 @@
    CinéClub Student Association - Client Application Logic
    ========================================================== */
 
-const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
+const API_BASE_URL = "https://kinepolics.onrender.com"; // URL Render
 
 (function () {
   'use strict';
