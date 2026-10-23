@@ -2,6 +2,8 @@
    CinéClub Student Association - Client Application Logic
    ========================================================== */
 
+const API_BASE_URL = "https://kinepolics-api.onrender.com"; // URL Render
+
 (function () {
   'use strict';
 
@@ -213,7 +215,7 @@
     if (!dropdown) return;
 
     try {
-      const res = await fetch(`/api/tmdb/search?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`${API_BASE_URL}/api/tmdb/search?query=${encodeURIComponent(query)}`);
       const data = await res.json();
       const results = data.results || [];
 
@@ -318,7 +320,7 @@
     }
 
     try {
-      const res = await fetch('/api/movies/suggest', {
+      const res = await fetch('${API_BASE_URL}/api/movies/suggest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -437,7 +439,7 @@
 
   async function loadMovies() {
     try {
-      const res = await fetch('/api/movies');
+      const res = await fetch('${API_BASE_URL}/api/movies');
       const data = await res.json();
       state.movies = data.movies || [];
       renderMovies();
@@ -504,7 +506,7 @@
 
   async function loadProducts() {
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch('${API_BASE_URL}/api/products');
       const data = await res.json();
       state.products = data.products || [];
       renderProducts();
@@ -714,7 +716,7 @@
         })),
       };
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch('${API_BASE_URL}/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
