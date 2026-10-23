@@ -3,6 +3,12 @@ import os
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cinema.db")
 
+svg_icon = """
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+</svg>
+"""
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -136,12 +142,12 @@ def init_db():
 
 def get_kinepolics_products():
     return [
-        ("Petit sucré", "", "Sucré", "Petit", 1.00, "", "🍿", 1),
-        ("Petit salé", "", "Salé", "Petit", 1.00, "", "🍿", 1),
-        ("Moyen sucré", "", "Sucré", "Moyen", 1.50, "", "🍿", 1),
-        ("Moyen salé", "", "Salé", "Moyen", 1.50, "", "🍿", 1),
-        ("Grand sucré", "", "Sucré", "Grand", 2, "", "🍿", 1),
-        ("Grand salé", "", "Salé", "Grand", 2, "", "🍿", 1),
+        ("Petit sucré", "", "Sucré", "Petit", 1.00, "", "", 1),
+        ("Petit salé", "", "Salé", "Petit", 1.00, "", "", 1),
+        ("Moyen sucré", "", "Sucré", "Moyen", 1.50, "", "", 1),
+        ("Moyen salé", "", "Salé", "Moyen", 1.50, "", "", 1),
+        ("Grand sucré", "", "Sucré", "Grand", 2, "", "", 1),
+        ("Grand salé", "", "Salé", "Grand", 2, "", "", 1),
     ]
 
 def update_to_kinepolics_tarifs(cursor):
