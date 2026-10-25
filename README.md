@@ -6,7 +6,6 @@ Visit the website [here](https://kinepolics.pages.dev/) and check the API servic
 
 ![image](./public/visuals/kinepolics_affiche.png)
 
----
 
 ## Architecture
 
@@ -17,7 +16,6 @@ Decoupled frontend-backend architecture running on cloud infrastructure:
 * **Database:** SQLite 3 (`cinema.db`).
 * **Integrations:** TMDB (The Movie Database) API for real-time movie search.
 
----
 
 ## Key Features
 
@@ -28,7 +26,6 @@ Search TMDB in real time and submit film ideas for upcoming screenings.
 3. **Popcorn**  
 Select popcorn sizes and flavors (Sucré / Salé), manage cart items, and place orders.
 
----
 
 ## Repository Structure
 
