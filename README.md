@@ -2,8 +2,8 @@
 
 Web platform for the KinepoliCS student cinema association. Centralizes movie suggestions, screening reviews, and concession stand orders.
 
-* **Live Site:** [https://kinepolics.pages.dev/](https://kinepolics.pages.dev/)
-* **API Service:** [https://kinepolics.onrender.com/](https://kinepolics.onrender.com/)
+* **visit the website here:** [https://kinepolics.pages.dev/](https://kinepolics.pages.dev/)
+* **and check the API service there:** [https://kinepolics.onrender.com/](https://kinepolics.onrender.com/)
 
 ---
 
