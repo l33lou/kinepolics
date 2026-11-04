@@ -1519,3 +1519,624 @@ body.menu-active .banner-wrapper {
 .history-word-tag:last-child::after {
   content: "";
 }
+
+/* ==========================================================================
+   USER AUTHENTICATION WIDGET & ADMIN BADGE
+   ========================================================================== */
+.user-auth-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  color: #facc15;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.btn-utility.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.btn-utility.btn-logout:hover {
+  background: rgba(220, 53, 69, 0.4) !important;
+  color: #fff !important;
+  transform: scale(1.08);
+}
+
+/* ==========================================================================
+   MODALS: AUTHENTIFICATION, REVIEW, ADMIN PRODUCT
+   ========================================================================== */
+.modal-auth-card {
+  max-width: 440px;
+}
+
+.modal-review-card {
+  max-width: 480px;
+}
+
+.modal-product-card {
+  max-width: 520px;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+  gap: 8px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-tab-btn:hover {
+  color: #fff;
+}
+
+.auth-tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.auth-error-banner {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.auth-error-banner.hidden {
+  display: none;
+}
+
+/* Star Picker in Review Modal */
+.star-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.star-picker-btn {
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: transform 0.15s ease, color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.star-picker-btn:hover {
+  transform: scale(1.25);
+}
+
+.star-picker-btn.selected,
+.star-picker-btn.hover-active {
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.6);
+}
+
+.star-picker-label {
+  margin-left: 12px;
+  font-family: 'orange-typewriter', monospace, sans-serif;
+  font-size: 1.05rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   ADMIN ACTIONS (MOVIES & SNACKS)
+   ========================================================================== */
+.movie-admin-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(44, 38, 33, 0.25);
+  flex-wrap: wrap;
+}
+
+.btn-admin-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(44, 38, 33, 0.08);
+  border: 1px solid #2C2621;
+  color: #2C2621;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: 'Limelight', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-admin-action:hover {
+  background: #2C2621;
+  color: #E7E4E1;
+}
+
+.btn-admin-action.btn-admin-delete-movie:hover {
+  background: #7b1a2f;
+  border-color: #7b1a2f;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(123, 26, 47, 0.4);
+}
+
+.btn-admin-action.btn-admin-screen-movie:hover {
+  background: #2C2621;
+  color: #facc15;
+}
+
+.snack-admin-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(44, 38, 33, 0.2);
+}
+
+.btn-admin-product-action {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(44, 38, 33, 0.4);
+  color: #2C2621;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Limelight', sans-serif;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-admin-product-action:hover {
+  background: #2C2621;
+  color: #fff;
+}
+
+.btn-admin-product-action.btn-admin-delete-product:hover {
+  background: #7b1a2f;
+  border-color: #7b1a2f;
+  color: #fff;
+}
+
+/* ==========================================================================
+   LETTERBOCS / HISTORY CARD ENHANCEMENTS
+   ========================================================================== */
+.history-card-inner {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.history-poster-thumb {
+  width: 80px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(44, 38, 33, 0.2);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: #2C2621;
+}
+
+.history-card-content {
+  flex: 1;
+}
+
+.history-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #7A6F66;
+  margin-bottom: 6px;
+  font-family: var(--font-body);
+}
+
+.btn-rate-movie {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(44, 38, 33, 0.08);
+  border: 1px solid #2C2621;
+  color: #2C2621;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-family: 'Limelight', serif, sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-rate-movie:hover {
+  background: #2C2621;
+  color: #facc15;
+  box-shadow: 0 0 10px rgba(44, 38, 33, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   STATISTIQUES SECTION STYLING
+   ========================================================================== */
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stats-metric-card {
+  background-color: #12141a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stats-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+.stats-metric-icon {
+  font-size: 1.7rem;
+  margin-bottom: 0.3rem;
+}
+
+.stats-metric-value {
+  font-family: 'Cinzel', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  line-height: 1.2;
+}
+
+.stats-metric-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 4px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 800px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats-card {
+  background-color: #12141a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.stats-card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.stats-card-header h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-card-header p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+/* Podium Styling */
+.stats-podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  max-width: 110px;
+}
+
+.podium-place.podium-first {
+  order: 2;
+  transform: translateY(-8px);
+}
+
+.podium-place.podium-second {
+  order: 1;
+}
+
+.podium-place.podium-third {
+  order: 3;
+}
+
+.podium-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.podium-first .podium-avatar {
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  color: #000;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.45);
+  width: 52px;
+  height: 52px;
+  font-size: 1.25rem;
+  border-color: #ffd700;
+}
+
+.podium-second .podium-avatar {
+  background: linear-gradient(135deg, #e0e0e0, #888888);
+  color: #000;
+  box-shadow: 0 0 10px rgba(200, 200, 200, 0.25);
+  border-color: #c0c0c0;
+}
+
+.podium-third .podium-avatar {
+  background: linear-gradient(135deg, #cd7f32, #7a3c10);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.25);
+  border-color: #cd7f32;
+}
+
+.podium-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fff;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium-score {
+  font-family: 'orange-typewriter', monospace, sans-serif;
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+}
+
+.podium-step {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+.podium-first .podium-step {
+  height: 65px;
+  background: linear-gradient(to top, rgba(234, 179, 8, 0.2), rgba(234, 179, 8, 0.5));
+  border-top: 3px solid #eab308;
+  color: #facc15;
+}
+
+.podium-second .podium-step {
+  height: 48px;
+  background: linear-gradient(to top, rgba(160, 160, 160, 0.15), rgba(160, 160, 160, 0.35));
+  border-top: 3px solid #c0c0c0;
+  color: #e0e0e0;
+}
+
+.podium-third .podium-step {
+  height: 35px;
+  background: linear-gradient(to top, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.35));
+  border-top: 3px solid #cd7f32;
+  color: #e29b68;
+}
+
+/* Stats Table */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.stats-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #ddd;
+}
+
+.stats-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* User Rating Distribution */
+.user-rating-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.user-rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.user-rating-meta {
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+  font-family: 'orange-typewriter', monospace, sans-serif;
+}
+
+.rating-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  margin-bottom: 3px;
+}
+
+.rating-dist-star-label {
+  width: 32px;
+  color: #facc15;
+  font-weight: 600;
+}
+
+.rating-dist-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rating-dist-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d97706, #facc15);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.rating-dist-count {
+  width: 24px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* Top Movies List */
+.top-movie-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.top-movie-item:last-child {
+  border-bottom: none;
+}
+
+.top-movie-rank {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 26px;
+  text-align: center;
+  color: var(--accent-gold);
+}
+
+.top-movie-poster {
+  width: 38px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  background-color: #202430;
+}
+
+.top-movie-info {
+  flex: 1;
+}
+
+.top-movie-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.top-movie-meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.top-movie-rating {
+  color: #facc15;
+  font-weight: 700;
+}

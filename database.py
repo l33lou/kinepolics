@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import hashlib
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cinema.db")
 
@@ -124,6 +125,34 @@ def init_db():
     )
     """)
 
+    # Users table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        is_admin INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # Screenings table (for movie history)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS screenings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        movie_id INTEGER NOT NULL,
+        screening_date TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
+    )
+    """)
+
+    # Seed admin account if not exists
+    cursor.execute("SELECT COUNT(*) as count FROM users WHERE username = 'admin'")
+    if cursor.fetchone()["count"] == 0:
+        admin_hash = hashlib.sha256("kinepolics2024".encode()).hexdigest()
+        cursor.execute("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)", ("admin", admin_hash))
+
     # Seed initial data if empty
     cursor.execute("SELECT COUNT(*) as count FROM movies")
     if cursor.fetchone()["count"] == 0:
@@ -136,6 +165,9 @@ def init_db():
 
     # Sync movie suggestions from survey PDF with screened counts
     sync_kinepolics_movie_suggestions(cursor)
+
+    # Seed initial screenings
+    seed_initial_screenings(cursor)
 
     conn.commit()
     conn.close()
@@ -327,6 +359,33 @@ def sync_kinepolics_movie_suggestions(cursor):
                 cursor.execute("""
                 UPDATE movies SET screened_count = ? WHERE LOWER(title) = ? AND (screened_count = 0 OR screened_count IS NULL)
                 """, (screened_count, title.lower()))
+
+def seed_initial_screenings(cursor):
+    """Seed the screenings table with historical projection data."""
+    cursor.execute("SELECT COUNT(*) as count FROM screenings")
+    if cursor.fetchone()["count"] > 0:
+        return  # Already seeded
+
+    historical = [
+        ("Parasite", "03/10/25"),
+        ("Le Cercle des poètes disparus", "10/10/25"),  # was "Dead Poets Society" in English
+        ("L'Île aux chiens", "15/10/25"),  # was "Isle of dogs"
+        ("Whiplash", "Session Batteur"),
+        ("Hunger Games", "21/11/25"),
+        ("Azur et Asmar", "Projection Spéciale"),
+        ("Blade Runner", "Projection Spéciale"),
+        ("Oppenheimer", "Projection Spéciale"),  # was "Mickey 17" but probably meant another
+        ("Frankenstein", "2025"),  # not in DB yet — skip if not found
+        ("Le Roi et l'Oiseau", "Projection Spéciale"),
+        ("The Truman Show", "Projection Spéciale"),  # was "The Cube" — use closest match
+        ("La La Land", "Projection Spéciale"),  # was "Don't Look Up" 
+    ]
+
+    for title, date in historical:
+        cursor.execute("SELECT id FROM movies WHERE LOWER(title) LIKE LOWER(?)", (f"%{title}%",))
+        row = cursor.fetchone()
+        if row:
+            cursor.execute("INSERT INTO screenings (movie_id, screening_date) VALUES (?, ?)", (row["id"], date))
 
 if __name__ == "__main__":
     init_db()

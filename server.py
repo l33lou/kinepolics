@@ -6,9 +6,10 @@ import mimetypes
 import urllib.parse
 import random
 import string
+import hashlib
+import base64
 from database import get_db, init_db
 import urllib.request
-import urllib.parse
 
 PORT = int(os.environ.get("PORT", 8000))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,8 +45,43 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             return None
 
+    def get_current_user(self):
+        """Extract user from Authorization header. Returns dict with id, username, is_admin or None."""
+        auth_header = self.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return None
+        token = auth_header[7:]
+        try:
+            decoded = base64.b64decode(token).decode("utf-8")
+            username, password_hash = decoded.split(":", 1)
+        except Exception:
+            return None
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, is_admin, password_hash FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        if user and user["password_hash"] == password_hash:
+            return {"id": user["id"], "username": user["username"], "is_admin": bool(user["is_admin"])}
+        return None
+
+    def require_admin(self):
+        """Check if current user is admin. Sends 401/403 and returns None if not. Returns user dict if admin."""
+        user = self.get_current_user()
+        if not user:
+            self.send_json({"error": "Authentification requise."}, 401)
+            return None
+        if not user["is_admin"]:
+            self.send_json({"error": "Accès réservé aux administrateurs."}, 403)
+            return None
+        return user
+
     def check_admin_auth(self):
-        # Checks X-Admin-Pin header
+        # Try new user-based auth first
+        user = self.get_current_user()
+        if user and user["is_admin"]:
+            return True
+        # Fallback to PIN header
         pin = self.headers.get("X-Admin-Pin", "")
         return pin == ADMIN_PIN
 
@@ -80,6 +116,12 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         elif path == "/api/wordcloud":
             movie_id = query.get("movie_id", [None])[0]
             self.handle_get_wordcloud(movie_id)
+        elif path == "/api/auth/me":
+            self.handle_auth_me()
+        elif path == "/api/stats/leaderboard":
+            self.handle_get_leaderboard()
+        elif path == "/api/history":
+            self.handle_get_history()
         else:
             # Serve static files
             self.serve_static(path)
@@ -87,7 +129,23 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
 
-        if path == "/api/vote":
+        if path == "/api/auth/register":
+            self.handle_auth_register()
+        elif path == "/api/auth/login":
+            self.handle_auth_login()
+        elif path.startswith("/api/admin/movies/") and path.endswith("/to-history"):
+            admin = self.require_admin()
+            if not admin:
+                return
+            parts = path.split("/")
+            movie_id = parts[4]  # /api/admin/movies/{id}/to-history
+            self.handle_admin_move_to_history(movie_id)
+        elif path == "/api/admin/products":
+            admin = self.require_admin()
+            if not admin:
+                return
+            self.handle_admin_add_product()
+        elif path == "/api/vote":
             self.handle_post_vote()
         elif path in ("/api/movies/suggest", "/api/movies"):
             self.handle_post_suggest_movie()
@@ -119,6 +177,12 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         if path.startswith("/api/orders/"):
             order_id = path[len("/api/orders/"):]
             self.handle_patch_order(order_id)
+        elif path.startswith("/api/admin/products/"):
+            admin = self.require_admin()
+            if not admin:
+                return
+            product_id = path[len("/api/admin/products/"):]
+            self.handle_admin_update_product(product_id)
         else:
             self.send_json({"error": "Endpoint not found"}, 404)
 
@@ -133,6 +197,12 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         elif path.startswith("/api/wordcloud/"):
             word_id = path[len("/api/wordcloud/"):]
             self.handle_delete_wordcloud(word_id)
+        elif path.startswith("/api/admin/products/"):
+            admin = self.require_admin()
+            if not admin:
+                return
+            product_id = path[len("/api/admin/products/"):]
+            self.handle_admin_delete_product(product_id)
         elif path.startswith("/api/admin/movies/"):
             if not self.check_admin_auth():
                 return self.send_json({"error": "Unauthorized. Invalid Admin PIN."}, 401)
@@ -776,6 +846,340 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         conn.commit()
         conn.close()
         self.send_json({"success": True, "message": "Word removed."})
+
+    # ----------------- Auth Handlers -----------------
+
+    def handle_auth_register(self):
+        data = self.parse_json_body()
+        if not data:
+            return self.send_json({"error": "Corps JSON invalide."}, 400)
+
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", ""))
+
+        if not username or len(username) < 2:
+            return self.send_json({"error": "Le pseudo doit faire au moins 2 caractères."}, 400)
+        if len(username) > 30:
+            return self.send_json({"error": "Le pseudo ne peut pas dépasser 30 caractères."}, 400)
+        if not password or len(password) < 4:
+            return self.send_json({"error": "Le mot de passe doit faire au moins 4 caractères."}, 400)
+
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        token = base64.b64encode(f"{username}:{password_hash}".encode()).decode()
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Check if username taken
+        cursor.execute("SELECT id FROM users WHERE LOWER(username) = LOWER(?)", (username,))
+        if cursor.fetchone():
+            conn.close()
+            return self.send_json({"error": "Ce pseudo est déjà pris."}, 409)
+
+        cursor.execute("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 0)", (username, password_hash))
+        conn.commit()
+        user_id = cursor.lastrowid
+        conn.close()
+
+        self.send_json({
+            "success": True,
+            "token": token,
+            "user": {"id": user_id, "username": username, "is_admin": False},
+            "message": f"Bienvenue {username} ! Votre compte a été créé."
+        }, 201)
+
+    def handle_auth_login(self):
+        data = self.parse_json_body()
+        if not data:
+            return self.send_json({"error": "Corps JSON invalide."}, 400)
+
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", ""))
+
+        if not username or not password:
+            return self.send_json({"error": "Pseudo et mot de passe requis."}, 400)
+
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, password_hash, is_admin FROM users WHERE LOWER(username) = LOWER(?)", (username,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if not user or user["password_hash"] != password_hash:
+            return self.send_json({"error": "Pseudo ou mot de passe incorrect."}, 401)
+
+        token = base64.b64encode(f"{user['username']}:{password_hash}".encode()).decode()
+
+        self.send_json({
+            "success": True,
+            "token": token,
+            "user": {"id": user["id"], "username": user["username"], "is_admin": bool(user["is_admin"])},
+            "message": f"Content de te revoir, {user['username']} !"
+        })
+
+    def handle_auth_me(self):
+        user = self.get_current_user()
+        if not user:
+            return self.send_json({"error": "Non connecté."}, 401)
+        self.send_json({"user": user})
+
+    # ----------------- History & Movie Admin Handlers -----------------
+
+    def handle_admin_move_to_history(self, movie_id):
+        data = self.parse_json_body()
+        if not data:
+            return self.send_json({"error": "Corps JSON invalide."}, 400)
+
+        screening_date = str(data.get("screening_date", "")).strip()
+        if not screening_date:
+            return self.send_json({"error": "La date de projection est requise."}, 400)
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Check movie exists
+        cursor.execute("SELECT id, title FROM movies WHERE id = ?", (movie_id,))
+        movie = cursor.fetchone()
+        if not movie:
+            conn.close()
+            return self.send_json({"error": "Film introuvable."}, 404)
+
+        # Check not already in screenings
+        cursor.execute("SELECT id FROM screenings WHERE movie_id = ?", (movie_id,))
+        if cursor.fetchone():
+            conn.close()
+            return self.send_json({"error": "Ce film est déjà dans l'historique."}, 409)
+
+        # Insert screening
+        cursor.execute("INSERT INTO screenings (movie_id, screening_date) VALUES (?, ?)", (movie_id, screening_date))
+        
+        # Increment screened_count
+        cursor.execute("UPDATE movies SET screened_count = screened_count + 1 WHERE id = ?", (movie_id,))
+        
+        conn.commit()
+        conn.close()
+
+        self.send_json({
+            "success": True,
+            "message": f"« {movie['title']} » ajouté à l'historique des projections !"
+        }, 201)
+
+    def handle_get_history(self):
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT s.id as screening_id, s.screening_date, s.movie_id,
+                   m.title, m.year, m.genre, m.poster_url, m.synopsis, m.runtime
+            FROM screenings s
+            JOIN movies m ON s.movie_id = m.id
+            ORDER BY s.created_at DESC
+        """)
+        screenings = [dict(row) for row in cursor.fetchall()]
+
+        # For each screening, get avg rating, review count, and word cloud
+        for sc in screenings:
+            mid = sc["movie_id"]
+
+            # Reviews stats
+            cursor.execute("""
+                SELECT COUNT(*) as count, COALESCE(AVG(rating), 0) as avg_rating
+                FROM reviews WHERE movie_id = ?
+            """, (mid,))
+            rev = cursor.fetchone()
+            sc["review_count"] = rev["count"]
+            sc["avg_rating"] = round(rev["avg_rating"], 1)
+
+            # Word cloud
+            cursor.execute("""
+                SELECT LOWER(TRIM(word)) as clean_word, MAX(word) as display_word, COUNT(*) as count
+                FROM word_cloud WHERE movie_id = ?
+                GROUP BY clean_word ORDER BY count DESC LIMIT 15
+            """, (mid,))
+            sc["words"] = [{"word": r["display_word"], "count": r["count"]} for r in cursor.fetchall()]
+
+        conn.close()
+        self.send_json({"screenings": screenings})
+
+    # ----------------- Product Management Handlers -----------------
+
+    def handle_admin_add_product(self):
+        data = self.parse_json_body()
+        if not data:
+            return self.send_json({"error": "Corps JSON invalide."}, 400)
+
+        name = str(data.get("name", "")).strip()
+        price = data.get("price")
+        if not name or price is None:
+            return self.send_json({"error": "Nom et prix requis."}, 400)
+
+        try:
+            price = float(price)
+        except (ValueError, TypeError):
+            return self.send_json({"error": "Prix invalide."}, 400)
+
+        category = str(data.get("category", "popcorn"))
+        flavor = str(data.get("flavor", ""))
+        size = str(data.get("size", ""))
+        description = str(data.get("description", ""))
+        emoji = str(data.get("emoji", "🍿"))
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO products (name, category, flavor, size, price, description, emoji, is_available)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+        """, (name, category, flavor, size, price, description, emoji))
+        conn.commit()
+        product_id = cursor.lastrowid
+        conn.close()
+
+        self.send_json({"success": True, "product_id": product_id, "message": f"Produit '{name}' ajouté !"}, 201)
+
+    def handle_admin_update_product(self, product_id):
+        data = self.parse_json_body()
+        if not data:
+            return self.send_json({"error": "Corps JSON invalide."}, 400)
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        updates = []
+        params = []
+
+        for field in ["name", "price", "size", "flavor", "description", "emoji", "category"]:
+            if field in data:
+                updates.append(f"{field} = ?")
+                params.append(data[field])
+        if "is_available" in data:
+            updates.append("is_available = ?")
+            params.append(1 if data["is_available"] else 0)
+
+        if not updates:
+            conn.close()
+            return self.send_json({"error": "Aucun champ à modifier."}, 400)
+
+        params.append(product_id)
+        cursor.execute(f"UPDATE products SET {', '.join(updates)} WHERE id = ?", params)
+        conn.commit()
+
+        cursor.execute("SELECT * FROM products WHERE id = ?", (product_id,))
+        product = cursor.fetchone()
+        conn.close()
+
+        if not product:
+            return self.send_json({"error": "Produit introuvable."}, 404)
+
+        self.send_json({"success": True, "product": dict(product), "message": "Produit mis à jour !"})
+
+    def handle_admin_delete_product(self, product_id):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
+        conn.commit()
+        conn.close()
+        self.send_json({"success": True, "message": "Produit supprimé."})
+
+    # ----------------- Leaderboard / Stats Handlers -----------------
+
+    def handle_get_leaderboard(self):
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Top popcorn buyers (by total spent)
+        cursor.execute("""
+            SELECT LOWER(customer_name) as name, MAX(customer_name) as display_name,
+                   SUM(total_price) as total_spent, COUNT(id) as order_count
+            FROM orders
+            GROUP BY LOWER(customer_name)
+            ORDER BY total_spent DESC
+            LIMIT 10
+        """)
+        top_buyers = [dict(row) for row in cursor.fetchall()]
+
+        # Top cinephiles (by number of movies reviewed)
+        cursor.execute("""
+            SELECT LOWER(reviewer_name) as name, MAX(reviewer_name) as display_name,
+                   COUNT(DISTINCT movie_id) as movies_reviewed,
+                   ROUND(AVG(rating), 1) as avg_rating
+            FROM reviews
+            GROUP BY LOWER(reviewer_name)
+            ORDER BY movies_reviewed DESC, avg_rating DESC
+            LIMIT 10
+        """)
+        top_cinephiles = [dict(row) for row in cursor.fetchall()]
+
+        # Rating distribution (for all users who have reviewed)
+        cursor.execute("""
+            SELECT LOWER(reviewer_name) as name, MAX(reviewer_name) as display_name,
+                   rating, COUNT(*) as count
+            FROM reviews
+            GROUP BY LOWER(reviewer_name), CAST(rating AS INTEGER)
+            ORDER BY name, rating
+        """)
+        raw_dist = cursor.fetchall()
+
+        # Group by user
+        user_distributions = {}
+        for row in raw_dist:
+            name = row["name"]
+            if name not in user_distributions:
+                user_distributions[name] = {"display_name": row["display_name"], "ratings": {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}}
+            star = min(5, max(1, int(row["rating"])))
+            user_distributions[name]["ratings"][star] += row["count"]
+
+        rating_distributions = [
+            {"name": v["display_name"], "ratings": v["ratings"]}
+            for k, v in user_distributions.items()
+        ]
+
+        # Top rated movies (screened only)
+        cursor.execute("""
+            SELECT m.title, m.poster_url, m.year,
+                   ROUND(AVG(r.rating), 1) as avg_rating,
+                   COUNT(r.id) as review_count
+            FROM reviews r
+            JOIN movies m ON r.movie_id = m.id
+            GROUP BY m.id
+            HAVING review_count >= 1
+            ORDER BY avg_rating DESC, review_count DESC
+            LIMIT 10
+        """)
+        top_rated = [dict(row) for row in cursor.fetchall()]
+
+        # General stats
+        cursor.execute("SELECT COUNT(DISTINCT LOWER(reviewer_name)) as cnt FROM reviews")
+        unique_reviewers = cursor.fetchone()["cnt"]
+
+        cursor.execute("SELECT COUNT(DISTINCT LOWER(customer_name)) as cnt FROM orders")
+        unique_buyers = cursor.fetchone()["cnt"]
+
+        cursor.execute("SELECT COALESCE(SUM(total_price), 0) as total FROM orders")
+        total_revenue = cursor.fetchone()["total"]
+
+        cursor.execute("SELECT COUNT(*) as cnt FROM screenings")
+        total_screenings = cursor.fetchone()["cnt"]
+
+        cursor.execute("SELECT COUNT(*) as cnt FROM users WHERE is_admin = 0")
+        total_users = cursor.fetchone()["cnt"]
+
+        conn.close()
+
+        self.send_json({
+            "top_buyers": top_buyers,
+            "top_cinephiles": top_cinephiles,
+            "rating_distributions": rating_distributions,
+            "top_rated_movies": top_rated,
+            "general": {
+                "unique_reviewers": unique_reviewers,
+                "unique_buyers": unique_buyers,
+                "total_revenue": round(total_revenue, 2),
+                "total_screenings": total_screenings,
+                "total_users": total_users
+            }
+        })
 
     # ----------------- Static Asset Serving -----------------
 
