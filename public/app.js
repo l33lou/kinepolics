@@ -126,9 +126,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     reviewTextInput: document.getElementById('review-text-input'),
     reviewWordInput: document.getElementById('review-word-input'),
 
-    // Stats Section
-    statsContent: document.getElementById('stats-content'),
-
     // Toast
     toastContainer: document.getElementById('toast-container'),
 
@@ -169,7 +166,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
             if (raw === 'vote') tabId = 'vote-section';
             else if (raw === 'popcorn') tabId = 'popcorn-section';
             else if (raw === 'history') tabId = 'history-section';
-            else if (raw === 'stats') tabId = 'stats-section';
             else tabId = raw;
           }
         }
@@ -677,7 +673,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     if (tabId.includes('vote') || tabId.includes('suggestion')) loadMovies();
     if (tabId.includes('popcorn') || tabId.includes('snack')) loadProducts();
     if (tabId.includes('history')) loadHistory();
-    if (tabId.includes('stats')) loadStats();
   }
 
   // ----------------- Movies & Suggestions -----------------
@@ -1475,210 +1470,6 @@ function renderHistory() {
       console.error(err);
       showToast('Erreur réseau.', 'error');
     }
-  }
-
-  // ----------------- Statistiques & Classements -----------------
-
-  async function loadStats() {
-    const container = elements.statsContent;
-    if (!container) return;
-
-    container.innerHTML = `<div class="loading-state" style="color: var(--text-muted); padding: 2rem 0;">Chargement des statistiques...</div>`;
-
-    try {
-      const res = await fetch('/api/stats/leaderboard');
-      const data = await res.json();
-      renderStats(data);
-    } catch (err) {
-      console.error('Erreur chargement stats', err);
-      container.innerHTML = `<div class="empty-state">Impossible de charger les statistiques.</div>`;
-    }
-  }
-
-  function renderStats(data) {
-    const container = elements.statsContent;
-    if (!container) return;
-
-    const general = data.general || {};
-    const topBuyers = data.top_buyers || [];
-    const topCinephiles = data.top_cinephiles || [];
-    const ratingDistributions = data.rating_distributions || [];
-    const topRated = data.top_rated_movies || [];
-
-    // Helper for medals
-    function getMedal(rank) {
-      if (rank === 0) return '🥇';
-      if (rank === 1) return '🥈';
-      if (rank === 2) return '🥉';
-      return `#${rank + 1}`;
-    }
-
-    // Top popcorn buyers HTML
-    const buyersHtml =
-      topBuyers.length > 0
-        ? topBuyers
-            .map(
-              (b, idx) => `
-          <div class="leaderboard-item" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.2rem; min-width: 28px; text-align: center;">${getMedal(idx)}</span>
-              <div>
-                <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(b.display_name)}</strong>
-                <div style="color: var(--text-muted); font-size: 0.78rem;">${b.order_count} commande${b.order_count > 1 ? 's' : ''}</div>
-              </div>
-            </div>
-            <span style="color: var(--accent-gold); font-weight: 700; font-size: 1.05rem;">€${Number(b.total_spent).toFixed(2)}</span>
-          </div>
-        `
-            )
-            .join('')
-        : `<p style="color: var(--text-muted); font-style: italic;">Aucune commande pour le moment.</p>`;
-
-    // Top cinephiles HTML
-    const cinephilesHtml =
-      topCinephiles.length > 0
-        ? topCinephiles
-            .map(
-              (c, idx) => `
-          <div class="leaderboard-item" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.2rem; min-width: 28px; text-align: center;">${getMedal(idx)}</span>
-              <div>
-                <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(c.display_name)}</strong>
-                <div style="color: var(--text-muted); font-size: 0.78rem;">Note moyenne donnée : ${c.avg_rating} / 5.0</div>
-              </div>
-            </div>
-            <span style="color: #fff; font-weight: 700; font-size: 0.95rem;">🎬 ${c.movies_reviewed} film${c.movies_reviewed > 1 ? 's' : ''} noté${c.movies_reviewed > 1 ? 's' : ''}</span>
-          </div>
-        `
-            )
-            .join('')
-        : `<p style="color: var(--text-muted); font-style: italic;">Aucun avis enregistré pour le moment.</p>`;
-
-    // Rating distributions HTML
-    const distHtml =
-      ratingDistributions.length > 0
-        ? ratingDistributions
-            .map((u) => {
-              const ratings = u.ratings || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-              const total = Object.values(ratings).reduce((a, b) => a + b, 0);
-
-              const bars = [5, 4, 3, 2, 1]
-                .map((star) => {
-                  const count = ratings[star] || 0;
-                  const pct = total > 0 ? (count / total) * 100 : 0;
-                  return `
-              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 0.78rem;">
-                <span style="width: 28px; color: var(--accent-gold);">${star}★</span>
-                <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-                  <div style="width: ${pct}%; height: 100%; background: var(--accent-gold); border-radius: 3px;"></div>
-                </div>
-                <span style="width: 20px; text-align: right; color: var(--text-muted);">${count}</span>
-              </div>
-            `;
-                })
-                .join('');
-
-              return `
-            <div class="user-dist-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <strong style="color: #fff; font-size: 0.95rem;">👤 ${escapeHtml(u.name)}</strong>
-                <span style="color: var(--text-muted); font-size: 0.8rem;">${total} avis au total</span>
-              </div>
-              <div class="dist-bars">${bars}</div>
-            </div>
-          `;
-            })
-            .join('')
-        : `<p style="color: var(--text-muted); font-style: italic;">Pas encore assez d'avis pour afficher la distribution.</p>`;
-
-    // Top rated movies HTML
-    const topRatedHtml =
-      topRated.length > 0
-        ? topRated
-            .map(
-              (m, idx) => `
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 1.1rem; min-width: 24px; text-align: center;">${getMedal(idx)}</span>
-              <div>
-                <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(m.title)}</strong>
-                <span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 6px;">(${m.year || ''})</span>
-                <div style="color: var(--text-muted); font-size: 0.78rem;">${m.review_count} avis exprimé${m.review_count > 1 ? 's' : ''}</div>
-              </div>
-            </div>
-            <div style="text-align: right;">
-              <span style="color: var(--accent-gold); font-weight: 700; font-size: 1.1rem;">★ ${m.avg_rating}</span>
-            </div>
-          </div>
-        `
-            )
-            .join('')
-        : `<p style="color: var(--text-muted); font-style: italic;">Aucun film noté dans l'historique.</p>`;
-
-    container.innerHTML = `
-      <!-- Chiffres clés KinepoliCS -->
-      <div class="stats-key-metrics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
-          <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-gold);">€${Number(general.total_revenue || 0).toFixed(2)}</div>
-          <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Recettes Popcorn</div>
-        </div>
-
-        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
-          <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.total_screenings || 0}</div>
-          <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Séances Projetées</div>
-        </div>
-
-        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
-          <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.total_users || 0}</div>
-          <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Comptes Membres</div>
-        </div>
-
-        <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
-          <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.unique_reviewers || 0}</div>
-          <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Critiques Actifs</div>
-        </div>
-      </div>
-
-      <!-- Grille des Classements -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
-        <!-- Top Popcorn Buyers -->
-        <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
-          <h3 style="color: var(--accent-gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            Top Mangeurs de Popcorn
-          </h3>
-          ${buyersHtml}
-        </div>
-
-        <!-- Top Cinéphiles -->
-        <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
-          <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            Top Cinéphiles (Avis Déposés)
-          </h3>
-          ${cinephilesHtml}
-        </div>
-
-        <!-- Distribution des notes de chaque utilisateur -->
-        <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
-          <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            Distribution des Notes par Membre
-          </h3>
-          ${distHtml}
-        </div>
-
-        <!-- Top Rated Movies -->
-        <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
-          <h3 style="color: var(--accent-gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            Films les Mieux Notés
-          </h3>
-          ${topRatedHtml}
-        </div>
-      </div>
-    `;
   }
 
   // ----------------- Entry Point -----------------
