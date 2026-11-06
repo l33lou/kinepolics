@@ -377,7 +377,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
       if (elements.tabLoginBtn) elements.tabLoginBtn.classList.add('active');
       if (elements.tabRegisterBtn) elements.tabRegisterBtn.classList.remove('active');
       if (elements.authModalTitle) elements.authModalTitle.textContent = 'Connexion Spectateur';
-      if (elements.submitAuthBtn) elements.submitAuthBtn.textContent = 'Se connecter 🍿';
+      if (elements.submitAuthBtn) elements.submitAuthBtn.textContent = 'Se connecter';
     } else {
       if (elements.tabRegisterBtn) elements.tabRegisterBtn.classList.add('active');
       if (elements.tabLoginBtn) elements.tabLoginBtn.classList.remove('active');
@@ -720,10 +720,10 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
           ? `
             <div class="admin-movie-actions" style="display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
               <button class="btn-utility btn-admin-screen" data-movie-id="${m.id}" data-movie-title="${escapeHtml(m.title)}" style="flex: 2; font-size: 0.78rem; justify-content: center; background: rgba(212, 175, 55, 0.15); border-color: var(--accent-gold); color: var(--accent-gold);">
-                📽️ Marquer projeté
+                Marquer projeté
               </button>
               <button class="btn-utility btn-admin-delete" data-movie-id="${m.id}" data-movie-title="${escapeHtml(m.title)}" style="flex: 1; font-size: 0.78rem; justify-content: center; background: rgba(220, 53, 69, 0.15); border-color: #dc3545; color: #ff6b6b;" title="Supprimer la suggestion">
-                🗑️
+                Poubelle
               </button>
             </div>
           `
@@ -749,8 +749,8 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
             </div>
 
             <div class="movie-top-badges">
-              ${m.screened_count > 0 ? `<span class="badge-screened">🍿 Déjà projeté (${m.screened_count}x)</span>` : ''}
-              ${m.suggested_by ? `<span class="badge-suggested-by">💡 Proposé par ${escapeHtml(m.suggested_by)}</span>` : ''}
+              ${m.screened_count > 0 ? `<span class="badge-screened"> Projeté (${m.screened_count}x)</span>` : ''}
+              ${m.suggested_by ? `<span class="badge-suggested-by"> Proposé par ${escapeHtml(m.suggested_by)}</span>` : ''}
             </div>
 
             <p class="movie-desc">${escapeHtml(m.synopsis || 'Aucun synopsis disponible.')}</p>
@@ -1247,6 +1247,45 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     }
   }
 
+// Helper : Vérifie si la date de projection est dans la semaine en cours (du Lundi au Dimanche)
+function isScreeningInCurrentWeek(dateStr) {
+  if (!dateStr) return false;
+
+  let screeningDate;
+
+  // Prise en charge des formats "JJ/MM/AA", "JJ/MM/AAAA" ou "AAAA-MM-JJ"
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Les mois vont de 0 à 11 en JS
+      let year = parseInt(parts[2], 10);
+      if (year < 100) year += 2000;
+      screeningDate = new Date(year, month, day);
+    }
+  } else {
+    screeningDate = new Date(dateStr);
+  }
+
+  if (!screeningDate || isNaN(screeningDate.getTime())) return false;
+
+  const now = new Date();
+
+  // Calcul du Lundi 00:00:00 et du Dimanche 23:59:59 de la semaine actuelle
+  const dayOfWeek = now.getDay(); // 0 = Dimanche, 1 = Lundi, ...
+  const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + distanceToMonday);
+  monday.setHours(0, 0, 0, 0);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+
+  return screeningDate >= monday && screeningDate <= sunday;
+}
+
   // ----------------- Historique des Projections (LetterboCS) -----------------
 
   async function loadHistory() {
@@ -1264,7 +1303,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     }
   }
 
-  function renderHistory() {
+function renderHistory() {
     const container = elements.historyList;
     if (!container) return;
 
@@ -1273,7 +1312,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <div class="empty-state">
           <div class="empty-icon">📽️</div>
           <h3>Aucun film dans l'historique pour l'instant</h3>
-          <p>Les projections apparaîtront ici dès que les administrateurs les valideront.</p>
         </div>`;
       return;
     }
@@ -1284,6 +1322,20 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         const reviewCount = item.review_count || 0;
         const starsFull = Math.round(avg);
         const starsStr = avg > 0 ? '★'.repeat(starsFull) + '☆'.repeat(5 - starsFull) : '☆☆☆☆☆';
+
+        // 1. Génération conditionnelle de la date (rien si elle est absente ou vide)
+        const dateHtml = item.screening_date && item.screening_date.trim() !== ''
+          ? `<span class="history-date">${escapeHtml(item.screening_date)}</span>`
+          : '';
+
+        // Vérification si la projection a lieu cette semaine
+        const isThisWeek = isScreeningInCurrentWeek(item.screening_date);
+
+        const buttonHtml = isThisWeek
+          ? `<button class="btn-suggest-primary btn-rate-movie" data-movie-id="${item.movie_id}" data-movie-title="${escapeHtml(item.title)}" style="font-size: 0.82rem; padding: 6px 14px;">
+              Donner mon avis
+             </button>`
+          : ''; // Masqué hors de la semaine de projection
 
         const wordsHtml =
           item.words && item.words.length > 0
@@ -1298,35 +1350,30 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         return `
         <div class="history-card" data-screening-id="${item.screening_id}" data-movie-id="${item.movie_id}">
           <div class="history-header">
-            <div>
-              <h3 class="history-movie-title">${escapeHtml(item.title)}</h3>
-              <span class="history-date">Projection : ${escapeHtml(item.screening_date)}</span>
+            <h3 class="history-movie-title">${escapeHtml(item.title)}</h3>
+            <div class="history-header-right">
+              ${dateHtml}
+              ${buttonHtml}
             </div>
-            <button class="btn-suggest-primary btn-rate-movie" data-movie-id="${item.movie_id}" data-movie-title="${escapeHtml(item.title)}" style="font-size: 0.82rem; padding: 6px 14px;">
-              ⭐ Donner mon avis
-            </button>
           </div>
 
-          <div class="history-rating-row" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
-            <span class="history-stars" style="color: var(--accent-gold); font-size: 1.1rem;">${starsStr}</span>
-            <span class="history-score-num" style="font-weight: 700; color: #fff;">
-              ${avg > 0 ? `${avg.toFixed(1)} / 5.0` : 'Non noté'}
-            </span>
-            <span style="color: var(--text-muted); font-size: 0.85rem;">(${reviewCount} avis)</span>
+          <div class="history-rating-row">
+            <span class="history-stars">${starsStr}</span>
+            <span class="history-score">${avg > 0 ? `${avg.toFixed(1)} / 5.0` : ''}</span>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">(${reviewCount})</span>
           </div>
 
           <div class="history-wordcloud-box" style="margin-top: 12px;">
-            <div class="history-wordcloud-title" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Le film en quelques mots</div>
             <div class="wordcloud-tags-container" style="display: flex; flex-wrap: wrap; gap: 6px;">
               ${wordsHtml}
             </div>
           </div>
         </div>
-      `;
+        `;
       })
       .join('');
 
-    // Wire "Donner mon avis" buttons
+    // Attachement de l'événement uniquement sur les boutons affichés
     container.querySelectorAll('.btn-rate-movie').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const movieId = e.currentTarget.dataset.movieId;
@@ -1573,25 +1620,25 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
       <!-- Chiffres clés KinepoliCS -->
       <div class="stats-key-metrics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;">🍿</div>
+          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
           <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-gold);">€${Number(general.total_revenue || 0).toFixed(2)}</div>
           <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Recettes Popcorn</div>
         </div>
 
         <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;">📽️</div>
+          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
           <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.total_screenings || 0}</div>
           <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Séances Projetées</div>
         </div>
 
         <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;">👥</div>
+          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
           <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.total_users || 0}</div>
           <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Comptes Membres</div>
         </div>
 
         <div class="metric-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 8px; text-align: center;">
-          <div style="font-size: 1.5rem; margin-bottom: 4px;">✍️</div>
+          <div style="font-size: 1.5rem; margin-bottom: 4px;"></div>
           <div style="font-size: 1.3rem; font-weight: 700; color: #fff;">${general.unique_reviewers || 0}</div>
           <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase;">Critiques Actifs</div>
         </div>
@@ -1602,7 +1649,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <!-- Top Popcorn Buyers -->
         <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
           <h3 style="color: var(--accent-gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            <span>🍿</span> Top Mangeurs de Popcorn
+            Top Mangeurs de Popcorn
           </h3>
           ${buyersHtml}
         </div>
@@ -1610,7 +1657,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <!-- Top Cinéphiles -->
         <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
           <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            <span>🎬</span> Top Cinéphiles (Avis Déposés)
+            Top Cinéphiles (Avis Déposés)
           </h3>
           ${cinephilesHtml}
         </div>
@@ -1618,7 +1665,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <!-- Distribution des notes de chaque utilisateur -->
         <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
           <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            <span>📊</span> Distribution des Notes par Membre
+            Distribution des Notes par Membre
           </h3>
           ${distHtml}
         </div>
@@ -1626,7 +1673,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <!-- Top Rated Movies -->
         <div class="stats-panel" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px;">
           <h3 style="color: var(--accent-gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-            <span>🏆</span> Films les Mieux Notés
+            Films les Mieux Notés
           </h3>
           ${topRatedHtml}
         </div>

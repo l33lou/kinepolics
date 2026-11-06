@@ -370,15 +370,15 @@ def seed_initial_screenings(cursor):
         ("Parasite", "03/10/25"),
         ("Le Cercle des poètes disparus", "10/10/25"),  # was "Dead Poets Society" in English
         ("L'Île aux chiens", "15/10/25"),  # was "Isle of dogs"
-        ("Whiplash", "Session Batteur"),
+        ("Whiplash", "20/10/25"),
         ("Hunger Games", "21/11/25"),
-        ("Azur et Asmar", "Projection Spéciale"),
-        ("Blade Runner", "Projection Spéciale"),
-        ("Oppenheimer", "Projection Spéciale"),  # was "Mickey 17" but probably meant another
+        ("Azur et Asmar", ""),
+        ("Blade Runner", ""),
+        ("Mickey 17", ""),  # was "Mickey 17" but probably meant another
         ("Frankenstein", "2025"),  # not in DB yet — skip if not found
-        ("Le Roi et l'Oiseau", "Projection Spéciale"),
-        ("The Truman Show", "Projection Spéciale"),  # was "The Cube" — use closest match
-        ("La La Land", "Projection Spéciale"),  # was "Don't Look Up" 
+        ("Le Roi et l'Oiseau", ""),
+        ("The Cube", ""),  # was "The Cube" — use closest match
+        ("Don't Look Up", ""),  # was "Don't Look Up" 
     ]
 
     for title, date in historical:
