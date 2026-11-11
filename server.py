@@ -96,11 +96,21 @@ def init_db():
         customer_name TEXT NOT NULL,
         total_price REAL NOT NULL,
         is_paid INTEGER DEFAULT 0,
+        is_delivered INTEGER DEFAULT 0,
+        payment_method TEXT DEFAULT 'carte',
         status TEXT DEFAULT 'pending', -- 'pending', 'preparing', 'ready', 'collected'
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
+    # Ensure orders columns exist in case table was created previously
+    cursor.execute("PRAGMA table_info(orders)")
+    existing_order_cols = {row["name"] for row in cursor.fetchall()}
+    if "payment_method" not in existing_order_cols:
+        cursor.execute("ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT 'carte'")
+    if "is_delivered" not in existing_order_cols:
+        cursor.execute("ALTER TABLE orders ADD COLUMN is_delivered INTEGER DEFAULT 0")
 
     # Order items table
     cursor.execute("""
@@ -795,6 +805,9 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         customer_name = str(data.get("customer_name", "")).strip()
         items = data.get("items", [])
         notes = data.get("notes", "")
+        payment_method = str(data.get("payment_method", "carte")).strip().lower()
+        if payment_method not in ("carte", "especes", "sumup"):
+            payment_method = "carte"
 
         if not customer_name:
             return self.send_json({"error": "Please provide your name for order pickup."}, 400)
@@ -858,6 +871,8 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
                 "total_price": round(total_price, 2),
                 "status": "pending",
                 "is_paid": 0,
+                "is_delivered": 0,
+                "payment_method": payment_method,
                 "items": validated_items
             }
         }, 201)
@@ -873,7 +888,7 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
                 ORDER BY created_at DESC
             """, (customer_name.strip(),))
         else:
-            cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+            cursor.execute("SELECT * FROM orders ORDER BY id DESC")
 
         orders = [dict(row) for row in cursor.fetchall()]
 
@@ -913,9 +928,15 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
         if "is_paid" in data:
             updates.append("is_paid = ?")
             params.append(1 if data["is_paid"] else 0)
+        if "is_delivered" in data:
+            updates.append("is_delivered = ?")
+            params.append(1 if data["is_delivered"] else 0)
         if "status" in data:
             updates.append("status = ?")
             params.append(str(data["status"]))
+        if "payment_method" in data:
+            updates.append("payment_method = ?")
+            params.append(str(data["payment_method"]))
 
         if not updates:
             conn.close()

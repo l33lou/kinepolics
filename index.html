@@ -100,83 +100,69 @@
         <div id="history-list" class="history-list"></div>
       </section>
 
-      <!-- 2. POPCORN SECTION -->
+      <!-- 2. POPCORN SECTION (RETOUR AU MODE DE COMMANDE CLASSIQUE) -->
       <section id="popcorn-section" class="tab-content">
-      <div class="section-header">
-        <h2>COMMANDER DU POPCORN</h2>
-        <p>Composez votre pot : glissez une taille puis une saveur dans le pot !</p>
-      </div>
-
-      <div class="popcorn-game-container">
-        <!-- Zone des Tailles à glisser (Étape 1) -->
-        <div class="drag-section" id="drag-sizes-section">
-          <h3 class="game-step-title">1. Choisissez la taille</h3>
-          <div class="drag-items-group">
-            <div class="drag-item" draggable="true" data-type="size" data-value="Petit">
-              <span class="drag-icon">🍿</span>
-              <span class="drag-label">Petit</span>
-            </div>
-            <div class="drag-item" draggable="true" data-type="size" data-value="Moyen">
-              <span class="drag-icon">🍿</span>
-              <span class="drag-label">Moyen</span>
-            </div>
-            <div class="drag-item" draggable="true" data-type="size" data-value="Grand">
-              <span class="drag-icon">🍿</span>
-              <span class="drag-label">Grand</span>
-            </div>
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2>COMMANDER DU POPCORN</h2>
+            <p>Choisissez vos snacks et boissons pour la séance.</p>
           </div>
+          <button id="admin-add-product-btn" class="btn-utility hidden" style="background: var(--accent-gold); color: #000;">
+            + Nouveau produit (Admin)
+          </button>
         </div>
 
-        <!-- Le Pot de Popcorn (Zone de dépôt) -->
-        <div class="popcorn-pot-wrapper">
-          <div id="popcorn-pot" class="popcorn-pot-dropzone">
-            <div class="pot-illustration">
-              <!-- Insérez ici votre dessin / image de pot de popcorn -->
-              <img src="visuals/popcorn1.svg" alt="Pot de Popcorn" id="pot-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-              <div class="pot-placeholder-icon" style="display:none; font-size: 5rem;">🗑️🍿</div>
-            </div>
-            <div class="pot-status-text" id="pot-status">Glissez une taille ici</div>
-          </div>
+        <!-- Grille des produits Popcorn & Snacks -->
+        <div class="snack-grid" id="snacks-grid">
+          <div class="loading-state" style="color: var(--text-muted); padding: 2rem 0;">Chargement du menu...</div>
         </div>
-
-        <!-- Zone des Saveurs à glisser (Étape 2, masquée au départ) -->
-        <div class="drag-section hidden" id="drag-flavors-section">
-          <h3 class="game-step-title">2. Assaisonnez votre pot</h3>
-          <div class="drag-items-group">
-            <div class="drag-item" draggable="true" data-type="flavor" data-value="Sucré">
-              <span class="drag-icon">🍬</span>
-              <span class="drag-label">Sucré</span>
-            </div>
-            <div class="drag-item" draggable="true" data-type="flavor" data-value="Salé">
-              <span class="drag-icon">🧂</span>
-              <span class="drag-label">Salé</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    </main>
+      </section>
 
     <!-- ==================== CART DRAWER ==================== -->
+    <!-- Bouton flottant panier (visible dès qu'un article est ajouté) -->
+    <button id="open-cart-btn" class="cart-fab hidden" aria-label="Ouvrir le panier">
+      🍿 Panier <span id="cartCount" class="cart-fab-count">0</span>
+    </button>
+
     <div class="cart-backdrop hidden" id="cart-backdrop"></div>
     <aside class="cart-drawer" id="cart-drawer" aria-label="Panier">
       <div class="cart-drawer-header">
-        <h2>Mon Panier Popcorn </h2>
+        <h2>Mon Panier Popcorn 🍿</h2>
         <button class="btn-close-drawer" id="close-cart-btn" aria-label="Fermer le panier">&times;</button>
       </div>
+      
       <div class="cart-drawer-body">
         <div class="cart-items-list" id="cart-items-list"></div>
       </div>
+
+      <!-- Le footer de paiement est TOUJOURS enfermé à l'intérieur du drawer -->
       <div class="cart-drawer-footer">
         <div class="cart-total-row">
           <span>Total :</span>
           <span class="cart-total-price" id="cart-total-display">€0.00</span>
         </div>
+
         <div class="cart-checkout-name">
-          <label for="checkout-name-input">Prénom ou Pseudo pour le retrait :</label>
-          <input type="text" id="checkout-name-input" placeholder="Ex: Lucas, Clara..." maxlength="30" />
+          <label for="checkout-name-input">Prénom / Pseudo pour le retrait :</label>
+          <input type="text" id="checkout-name-input" placeholder="Connectez-vous pour commander..." readonly />
         </div>
+
+        <!-- Choix du paiement -->
+        <div class="cart-payment-method" style="margin: 12px 0;">
+          <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">Moyen de paiement :</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <label style="cursor: pointer; font-size: 0.85rem;">
+              <input type="radio" name="payment-method" value="carte" checked /> Carte
+            </label>
+            <label style="cursor: pointer; font-size: 0.85rem;">
+              <input type="radio" name="payment-method" value="especes" /> Espèces
+            </label>
+            <label style="cursor: pointer; font-size: 0.85rem;">
+              <input type="radio" name="payment-method" value="sumup" /> SumUp
+            </label>
+          </div>
+        </div>
+
         <button class="btn-place-order" id="place-order-btn">Valider et payer</button>
       </div>
     </aside>

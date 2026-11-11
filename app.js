@@ -80,7 +80,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
 
     // Snacks & Cart
     snacksGrid: document.getElementById('snacks-grid') || document.querySelector('.snack-grid'),
-    openCartBtn: document.getElementById('cartBtn') || document.getElementById('open-cart-btn'),
+    openCartBtn: document.getElementById('open-cart-btn') || document.getElementById('cartBtn'),
     closeCartBtn: document.getElementById('close-cart-btn'),
     cartBackdrop: document.getElementById('cart-backdrop'),
     cartDrawer: document.getElementById('cart-drawer'),
@@ -138,7 +138,8 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     suggestAuthorInput: document.getElementById('suggest-author-input'),
   };
 
-  // ----------------- Initialization -----------------
+
+// ----------------- Initialization -----------------
 
   async function init() {
     setupEventListeners();
@@ -148,7 +149,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     loadMovies();
     loadProducts();
     loadHistory();
-    setupPopcornDragAndDrop();
+    // Le mini-jeu drag and drop est retiré
   }
 
   // ----------------- Event Listeners -----------------
@@ -457,18 +458,24 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
 
   function updateUserDisplay() {
     if (state.user) {
-      const adminBadge = state.isAdmin ? 'Admin' : '';
+      const adminBadge = state.isAdmin ? ' Admin' : '';
       const text = `${state.username}${adminBadge}`;
       if (elements.userDisplayName) elements.userDisplayName.textContent = text;
       if (elements.logoutBtn) elements.logoutBtn.classList.remove('hidden');
+      if (elements.checkoutNameInput) {
+        elements.checkoutNameInput.value = state.username;
+        elements.checkoutNameInput.placeholder = '';
+      }
     } else {
       if (elements.userDisplayName) elements.userDisplayName.textContent = 'Se connecter';
       if (elements.logoutBtn) elements.logoutBtn.classList.add('hidden');
+      if (elements.checkoutNameInput) {
+        elements.checkoutNameInput.value = '';
+        elements.checkoutNameInput.placeholder = 'Connectez-vous pour passer commande';
+      }
     }
 
-    if (state.username && elements.checkoutNameInput) {
-      elements.checkoutNameInput.value = state.username;
-    }
+    renderProducts();
   }
 
   // ----------------- TMDB Search Integration -----------------
@@ -824,105 +831,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
   }
 
   // ----------------- Snacks & Concession Stand -----------------
-// Variable d'état pour suivre la sélection en cours dans le jeu
-const gameSelection = {
-  size: null,
-  flavor: null
-};
 
-function setupPopcornDragAndDrop() {
-  const dragItems = document.querySelectorAll('.drag-item');
-  const dropzone = document.getElementById('popcorn-pot');
-  const potStatus = document.getElementById('pot-status');
-  const sizesSection = document.getElementById('drag-sizes-section');
-  const flavorsSection = document.getElementById('drag-flavors-section');
-
-  if (!dropzone) return;
-
-  // 1. Événements sur les objets à glisser
-  dragItems.forEach((item) => {
-    item.addEventListener('dragstart', (e) => {
-      item.classList.add('dragging');
-      e.dataTransfer.setData('text/plain', JSON.stringify({
-        type: item.dataset.type,
-        value: item.dataset.value
-      }));
-    });
-
-    // En fin de drag (déposé ou annulé), l'élément reprend sa place visuelle automatiquement
-    item.addEventListener('dragend', () => {
-      item.classList.remove('dragging');
-    });
-  });
-
-  // 2. Événements sur le pot (Zone de dépôt)
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault(); // Indispensable pour autoriser le dépôt
-    dropzone.classList.add('drag-over');
-  });
-
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.classList.remove('drag-over');
-  });
-
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('drag-over');
-
-    const data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-
-    if (!data.type || !data.value) return;
-
-    // Étape 1 : Choix de la Taille
-    if (data.type === 'size') {
-      gameSelection.size = data.value;
-      dropzone.classList.add('success-pop');
-      setTimeout(() => dropzone.classList.remove('success-pop'), 400);
-
-      // Transition vers l'étape 2 (Saveur)
-      sizesSection.classList.add('hidden');
-      flavorsSection.classList.remove('hidden');
-      if (potStatus) potStatus.textContent = `Taille ${gameSelection.size} choisie ! Glissez maintenant le sucre ou le sel.`;
-    }
-
-    // Étape 2 : Choix de la Saveur & Ajout au Panier
-    else if (data.type === 'flavor') {
-      if (!gameSelection.size) {
-        showToast('Veuillez d\'abord choisir une taille !', 'error');
-        return;
-      }
-
-      gameSelection.flavor = data.value;
-      dropzone.classList.add('success-pop');
-
-      // Recherche du produit correspondant dans state.products
-      const matchingProduct = state.products.find((p) => {
-        const matchSize = p.size === gameSelection.size || p.name.includes(gameSelection.size);
-        const matchFlavor = p.flavor === gameSelection.flavor || p.name.toLowerCase().includes(gameSelection.flavor.toLowerCase());
-        return matchSize && matchFlavor;
-      });
-
-      if (matchingProduct) {
-        addToCart(matchingProduct.id); // Ajout direct au panier
-      } else {
-        showToast(`Produit ${gameSelection.size} ${gameSelection.flavor} non trouvé.`, 'error');
-      }
-
-      // Réinitialisation de l'état du jeu pour la prochaine commande
-      setTimeout(() => {
-        dropzone.classList.remove('success-pop');
-        gameSelection.size = null;
-        gameSelection.flavor = null;
-
-        flavorsSection.classList.add('hidden');
-        sizesSection.classList.remove('hidden');
-        if (potStatus) potStatus.textContent = 'Glissez une taille ici';
-      }, 800);
-    }
-  });
-}
-
-// Appelez setupPopcornDragAndDrop() dans votre fonction init() de app.js
   async function loadProducts() {
     try {
       const res = await authFetch('/api/products');
@@ -1211,6 +1120,15 @@ function setupPopcornDragAndDrop() {
     if (elements.headerCartCount) elements.headerCartCount.textContent = totalCount;
     if (elements.cartTotalDisplay) elements.cartTotalDisplay.textContent = `€${totalPrice.toFixed(2)}`;
 
+    // Show/hide the floating cart button
+    if (elements.openCartBtn) {
+      if (totalCount > 0) {
+        elements.openCartBtn.classList.remove('hidden');
+      } else {
+        elements.openCartBtn.classList.add('hidden');
+      }
+    }
+
     if (elements.placeOrderBtn) elements.placeOrderBtn.disabled = totalCount === 0;
 
     if (!elements.cartItemsList) return;
@@ -1218,7 +1136,7 @@ function setupPopcornDragAndDrop() {
     if (state.cart.length === 0) {
       elements.cartItemsList.innerHTML = `
         <div class="empty-cart-message">
-          <span>${popcornIconSvg}</span>
+          <span>🍿</span>
           <p>Votre panier de popcorn est vide.</p>
         </div>
       `;
@@ -1228,19 +1146,21 @@ function setupPopcornDragAndDrop() {
           (it) => `
         <div class="cart-item-row">
           <div class="cart-item-info">
-            <div class="cart-item-title">${it.emoji} ${escapeHtml(it.name)}</div>
-            <div class="cart-item-price">€${(it.price * it.quantity).toFixed(2)} (€${it.price.toFixed(2)} l'unité)</div>
+            <div class="cart-item-title">${it.emoji || '🍿'} ${escapeHtml(it.name)}</div>
+            <div class="cart-item-price">€${(it.price * it.quantity).toFixed(2)} · €${it.price.toFixed(2)} / u</div>
           </div>
           <div class="cart-qty-controls">
-            <button class="qty-btn" data-qty-id="${it.product_id}" data-delta="-1">−</button>
+            <button class="qty-btn btn-qty-minus" data-qty-id="${it.product_id}" data-delta="-1">−</button>
             <span class="cart-item-qty">${it.quantity}</span>
-            <button class="qty-btn" data-qty-id="${it.product_id}" data-delta="1">+</button>
+            <button class="qty-btn btn-qty-plus" data-qty-id="${it.product_id}" data-delta="1">+</button>
+            <button class="btn-remove-item" data-remove-id="${it.product_id}" title="Supprimer">🗑</button>
           </div>
         </div>
       `
         )
         .join('');
 
+      // Écouteurs pour ajuster la quantité (- et +)
       elements.cartItemsList.querySelectorAll('.qty-btn').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           const id = parseInt(e.currentTarget.dataset.qtyId, 10);
@@ -1248,7 +1168,22 @@ function setupPopcornDragAndDrop() {
           updateQuantity(id, delta);
         });
       });
+
+      // Écouteur pour la suppression complète
+      elements.cartItemsList.querySelectorAll('.btn-remove-item').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.currentTarget.dataset.removeId, 10);
+          removeFromCart(id);
+        });
+      });
     }
+  }
+
+  function removeFromCart(productId) {
+    state.cart = state.cart.filter((it) => it.product_id !== productId);
+    saveCart();
+    updateCartUI();
+    showToast('Produit retiré du panier', 'info');
   }
 
   function openCart() {
@@ -1265,10 +1200,10 @@ function setupPopcornDragAndDrop() {
   }
 
   async function handlePlaceOrder() {
-    const customerName = elements.checkoutNameInput ? elements.checkoutNameInput.value.trim() : '';
-    if (!customerName) {
-      showToast('Veuillez indiquer un prénom ou pseudo pour le retrait !', 'error');
-      if (elements.checkoutNameInput) elements.checkoutNameInput.focus();
+    // 1. Vérification de la connexion de l'utilisateur
+    if (!state.user || !state.token) {
+      showToast('Vous devez être connecté pour passer une commande !', 'info');
+      openAuthModal('login');
       return;
     }
 
@@ -1277,14 +1212,19 @@ function setupPopcornDragAndDrop() {
       return;
     }
 
+    // 2. Récupération du mode de paiement sélectionné
+    const paymentRadio = document.querySelector('input[name="payment-method"]:checked');
+    const paymentMethod = paymentRadio ? paymentRadio.value : 'carte';
+
     if (elements.placeOrderBtn) {
       elements.placeOrderBtn.disabled = true;
-      elements.placeOrderBtn.textContent = 'Génération du Pass Retrait...';
+      elements.placeOrderBtn.textContent = 'Génération de la commande...';
     }
 
     try {
       const payload = {
-        customer_name: customerName,
+        customer_name: state.username,
+        payment_method: paymentMethod,
         items: state.cart.map((it) => ({
           product_id: it.product_id,
           quantity: it.quantity,
@@ -1329,6 +1269,7 @@ function setupPopcornDragAndDrop() {
           .join('');
       }
 
+      showToast(`Commande passée (Paiement : ${paymentMethod.toUpperCase()})`, 'success');
       if (elements.orderSuccessModal) elements.orderSuccessModal.classList.remove('hidden');
     } catch (err) {
       console.error(err);
