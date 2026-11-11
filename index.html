@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KinepoliCS</title>
-  <link rel="icon" type="image/png" href="/visuals/logo_kinepolics_rounded.png">
+  <link rel="icon" type="image/png" href="visuals/logo_kinepolics_rounded.png">
   <link rel="stylesheet" href="style.css">
   <!-- Google Fonts for cinema styling -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
 
       <!-- Image Container (Soirée Film Poster) -->
       <div class="banner-wrapper">
-        <img src="/visuals/kinepolics_affiche.png" alt="KinepoliCS Soirée Film" class="banner-image" id="bannerImage" />
+        <img src="visuals/kinepolics_affiche.png" alt="KinepoliCS Soirée Film" class="banner-image" id="bannerImage" />
       </div>
 
       <!-- Login Button Relocated Here -->
@@ -47,6 +47,7 @@
           <a href="#vote" class="nav-link active" data-tab="vote-section">Vos suggestions</a>
           <span class="menu-star">★</span>
           <a href="#popcorn" class="nav-link" data-tab="popcorn-section">Popcorn</a>
+        </div>
         <div class="separator-line"></div>
       </nav>
     </header>
@@ -89,46 +90,71 @@
         </div>
       </section>
 
-      <!-- 2. POPCORN SECTION -->
-      <section id="popcorn-section" class="tab-content">
-        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h2>Commander du popcorn</h2>
-          </div>
-          
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button id="admin-add-product-btn" class="btn-suggest-primary hidden" style="background: var(--accent-gold); color: #000;">+ Nouveau produit (Admin)</button>
-            <!-- Cart Button Relocated Here -->
-            <button type="button" class="btn-utility btn-cart" id="cartBtn">
-              <svg class="utility-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-              </svg>
-              <span>Panier</span>
-              <span class="cart-count" id="cartCount" aria-live="polite">0</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Dynamic Snack Grid (populated by app.js /api/products with KinepoliCS tariffs) -->
-        <div class="snack-grid" id="snacks-grid">
-          <div class="loading-state" style="color: var(--text-muted); padding: 2rem 0;">Chargement des snacks...</div>
-        </div>
-      </section>
-
-      <!-- 3. HISTORIQUE SECTION -->
+      <!-- 3. LETTERBOCS / HISTORIQUE SECTION -->
       <section id="history-section" class="tab-content">
         <div class="section-header">
-          <h2>Historique des Projections</h2>
-          <p>Votes et commentaires possibles lors de la semaine de la projection uniquement.</p>
+          <h2>LETTERBOCS</h2>
+          <p>Historique des projections, notes et nuages de mots de la communauté.</p>
         </div>
 
-        <!-- Conteneur dynamique alimenté par loadHistory() -->
-        <div class="history-list" id="history-list">
-          <div class="loading-state" style="color: var(--text-muted); padding: 2rem 0;">Chargement de l'historique...</div>
-        </div>
+        <div id="history-list" class="history-list"></div>
       </section>
+
+      <!-- 2. POPCORN SECTION -->
+      <section id="popcorn-section" class="tab-content">
+      <div class="section-header">
+        <h2>COMMANDER DU POPCORN</h2>
+        <p>Composez votre pot : glissez une taille puis une saveur dans le pot !</p>
+      </div>
+
+      <div class="popcorn-game-container">
+        <!-- Zone des Tailles à glisser (Étape 1) -->
+        <div class="drag-section" id="drag-sizes-section">
+          <h3 class="game-step-title">1. Choisissez la taille</h3>
+          <div class="drag-items-group">
+            <div class="drag-item" draggable="true" data-type="size" data-value="Petit">
+              <span class="drag-icon">🍿</span>
+              <span class="drag-label">Petit</span>
+            </div>
+            <div class="drag-item" draggable="true" data-type="size" data-value="Moyen">
+              <span class="drag-icon">🍿</span>
+              <span class="drag-label">Moyen</span>
+            </div>
+            <div class="drag-item" draggable="true" data-type="size" data-value="Grand">
+              <span class="drag-icon">🍿</span>
+              <span class="drag-label">Grand</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Le Pot de Popcorn (Zone de dépôt) -->
+        <div class="popcorn-pot-wrapper">
+          <div id="popcorn-pot" class="popcorn-pot-dropzone">
+            <div class="pot-illustration">
+              <!-- Insérez ici votre dessin / image de pot de popcorn -->
+              <img src="visuals/popcorn1.svg" alt="Pot de Popcorn" id="pot-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <div class="pot-placeholder-icon" style="display:none; font-size: 5rem;">🗑️🍿</div>
+            </div>
+            <div class="pot-status-text" id="pot-status">Glissez une taille ici</div>
+          </div>
+        </div>
+
+        <!-- Zone des Saveurs à glisser (Étape 2, masquée au départ) -->
+        <div class="drag-section hidden" id="drag-flavors-section">
+          <h3 class="game-step-title">2. Assaisonnez votre pot</h3>
+          <div class="drag-items-group">
+            <div class="drag-item" draggable="true" data-type="flavor" data-value="Sucré">
+              <span class="drag-icon">🍬</span>
+              <span class="drag-label">Sucré</span>
+            </div>
+            <div class="drag-item" draggable="true" data-type="flavor" data-value="Salé">
+              <span class="drag-icon">🧂</span>
+              <span class="drag-label">Salé</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     </main>
 
@@ -151,16 +177,14 @@
           <label for="checkout-name-input">Prénom ou Pseudo pour le retrait :</label>
           <input type="text" id="checkout-name-input" placeholder="Ex: Lucas, Clara..." maxlength="30" />
         </div>
-        <button class="btn-place-order" id="place-order-btn">Valider & Générer le Pass Retrait 🎟️</button>
+        <button class="btn-place-order" id="place-order-btn">Valider et payer</button>
       </div>
     </aside>
 
     <!-- ==================== ORDER SUCCESS MODAL ==================== -->
     <div class="modal-backdrop hidden" id="order-success-modal">
       <div class="modal-card">
-        <div class="modal-icon">
-          <svg xmlns="./visuals/popcorn1.svg" viewBox="0 0 24 24" width="24" height="24"></svg>
-        </div>
+        <div class="modal-icon">🍿</div>
         <h2>Commande Validée !</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem;">Présentez ce pass au comptoir pour retirer votre commande :</p>
         <div class="ticket-pass-badge" id="success-order-code">POP-000</div>
@@ -229,7 +253,6 @@
     <!-- ==================== MODAL : AUTHENTIFICATION (CONNEXION / INSCRIPTION) ==================== -->
     <div class="modal-backdrop hidden" id="auth-modal">
       <div class="modal-card modal-auth-card">
-        <div class="modal-icon">🎟️</div>
         <h2 id="auth-modal-title">Espace Spectateur</h2>
         <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
           Connectez-vous pour voter, noter les films et commander du popcorn.
@@ -246,13 +269,13 @@
 
         <form id="auth-form" style="display: flex; flex-direction: column; gap: 1rem; text-align: left; margin-top: 1rem;">
           <div>
-            <label for="auth-username-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Identifiant / Pseudo *</label>
-            <input type="text" id="auth-username-input" required autocomplete="username" placeholder="Ex: Clara, Lucas..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+            <label for="auth-username-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Pseudo *</label>
+            <input type="text" id="auth-username-input" required autocomplete="username" placeholder="Votre pseudo" />
           </div>
 
           <div>
             <label for="auth-password-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Mot de passe *</label>
-            <input type="password" id="auth-password-input" required autocomplete="current-password" placeholder="Votre mot de passe" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+            <input type="password" id="auth-password-input" required autocomplete="current-password" placeholder="Votre mot de passe" />
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 0.5rem;">

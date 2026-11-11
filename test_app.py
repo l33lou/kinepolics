@@ -8,7 +8,7 @@ import os
 import sys
 
 from server import CinemaRequestHandler, ADMIN_PIN
-from database import init_db
+from server import init_db
 
 TEST_PORT = 8899
 
@@ -162,6 +162,7 @@ def main():
     print("✓ Admin PIN authentication verified!")
 
     print("\n--- TEST 9: Letterboxd Reviews & Ratings API ---")
+    test_reviewer = f"CinemaLover_{int(time.time() * 1000)}"
     # Fetch reviews for movie 1
     status, data = make_request(f"/api/reviews?movie_id={movie_id_1}")
     assert status == 200, f"Expected 200, got {status}"
@@ -170,7 +171,7 @@ def main():
     # Post a review
     status, res = make_request("/api/reviews", method="POST", data={
         "movie_id": movie_id_1,
-        "reviewer_name": "CinemaLover42",
+        "reviewer_name": test_reviewer,
         "rating": 5.0,
         "review_text": "Unbelievable atmosphere in the association room!"
     })
@@ -180,7 +181,7 @@ def main():
     # Update the review
     status, res = make_request("/api/reviews", method="POST", data={
         "movie_id": movie_id_1,
-        "reviewer_name": "CinemaLover42",
+        "reviewer_name": test_reviewer,
         "rating": 4.5,
         "review_text": "Updated thoughts: still amazing after second thought."
     })

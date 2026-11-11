@@ -4,7 +4,7 @@ Web platform for the KinepoliCS student cinema association. Centralizes movie su
 
 Visit the website [here](https://kinepolics.pages.dev/) and check the API service [here](https://kinepolics.onrender.com/).
 
-![image](./public/visuals/kinepolics_affiche.png)
+![image](./visuals/kinepolics_affiche.png)
 
 
 ## Architecture
@@ -31,13 +31,14 @@ Select popcorn sizes and flavors (Sucré / Salé), manage cart items, and place 
 
 ```text
 student-cinema/
-├── server.py         # HTTP server and REST API implementation
-├── database.py       # SQLite database schema, initialization, and helpers
-├── test_app.py       # Automated API unit tests
-├── requirements.txt  # Environment config for Render deployment
-├── cinema.db         # Local SQLite database
-└── public/           # Static web assets
-    ├── index.html    # Single-page application markup
-    ├── style.css     # Theme stylesheet
-    └── app.js        # Client-side state and API request handling
+├── server.py         # Application backend, HTTP server, database & REST API
+├── database.py       # Backwards-compatible re-export module (from server import get_db, init_db)
+├── test_app.py       # Automated API test suite
+├── requirements.txt  # Environment config for Render deployment (standard library)
+├── cinema.db         # SQLite database
+├── index.html        # Single-page application markup
+├── style.css         # Theme stylesheet
+├── app.js            # Client-side state and API request handling
+├── fonts/            # Custom vintage cinema typography
+└── visuals/          # Posters, logos, and illustrations
 ```

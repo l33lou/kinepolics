@@ -6,7 +6,7 @@
 // Configuration de l'URL API :
 // - En local (localhost / 127.0.0.1) : utilise le serveur local ("")
 // - En production sur Render ou hébergement externe : utilise l'URL Render
-const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "0.0.0.0")
   ? ""
   : "https://kinepolics.onrender.com";
 
@@ -148,6 +148,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     loadMovies();
     loadProducts();
     loadHistory();
+    setupPopcornDragAndDrop();
   }
 
   // ----------------- Event Listeners -----------------
@@ -378,7 +379,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
       if (elements.tabRegisterBtn) elements.tabRegisterBtn.classList.add('active');
       if (elements.tabLoginBtn) elements.tabLoginBtn.classList.remove('active');
       if (elements.authModalTitle) elements.authModalTitle.textContent = 'Créer un Compte';
-      if (elements.submitAuthBtn) elements.submitAuthBtn.textContent = "S'inscrire ✨";
+      if (elements.submitAuthBtn) elements.submitAuthBtn.textContent = "S'inscrire";
     }
   }
 
@@ -456,7 +457,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
 
   function updateUserDisplay() {
     if (state.user) {
-      const adminBadge = state.isAdmin ? ' 👑 Admin' : '';
+      const adminBadge = state.isAdmin ? 'Admin' : '';
       const text = `${state.username}${adminBadge}`;
       if (elements.userDisplayName) elements.userDisplayName.textContent = text;
       if (elements.logoutBtn) elements.logoutBtn.classList.remove('hidden');
@@ -823,7 +824,105 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
   }
 
   // ----------------- Snacks & Concession Stand -----------------
+// Variable d'état pour suivre la sélection en cours dans le jeu
+const gameSelection = {
+  size: null,
+  flavor: null
+};
 
+function setupPopcornDragAndDrop() {
+  const dragItems = document.querySelectorAll('.drag-item');
+  const dropzone = document.getElementById('popcorn-pot');
+  const potStatus = document.getElementById('pot-status');
+  const sizesSection = document.getElementById('drag-sizes-section');
+  const flavorsSection = document.getElementById('drag-flavors-section');
+
+  if (!dropzone) return;
+
+  // 1. Événements sur les objets à glisser
+  dragItems.forEach((item) => {
+    item.addEventListener('dragstart', (e) => {
+      item.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', JSON.stringify({
+        type: item.dataset.type,
+        value: item.dataset.value
+      }));
+    });
+
+    // En fin de drag (déposé ou annulé), l'élément reprend sa place visuelle automatiquement
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+    });
+  });
+
+  // 2. Événements sur le pot (Zone de dépôt)
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault(); // Indispensable pour autoriser le dépôt
+    dropzone.classList.add('drag-over');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('drag-over');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+
+    const data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+
+    if (!data.type || !data.value) return;
+
+    // Étape 1 : Choix de la Taille
+    if (data.type === 'size') {
+      gameSelection.size = data.value;
+      dropzone.classList.add('success-pop');
+      setTimeout(() => dropzone.classList.remove('success-pop'), 400);
+
+      // Transition vers l'étape 2 (Saveur)
+      sizesSection.classList.add('hidden');
+      flavorsSection.classList.remove('hidden');
+      if (potStatus) potStatus.textContent = `Taille ${gameSelection.size} choisie ! Glissez maintenant le sucre ou le sel.`;
+    }
+
+    // Étape 2 : Choix de la Saveur & Ajout au Panier
+    else if (data.type === 'flavor') {
+      if (!gameSelection.size) {
+        showToast('Veuillez d\'abord choisir une taille !', 'error');
+        return;
+      }
+
+      gameSelection.flavor = data.value;
+      dropzone.classList.add('success-pop');
+
+      // Recherche du produit correspondant dans state.products
+      const matchingProduct = state.products.find((p) => {
+        const matchSize = p.size === gameSelection.size || p.name.includes(gameSelection.size);
+        const matchFlavor = p.flavor === gameSelection.flavor || p.name.toLowerCase().includes(gameSelection.flavor.toLowerCase());
+        return matchSize && matchFlavor;
+      });
+
+      if (matchingProduct) {
+        addToCart(matchingProduct.id); // Ajout direct au panier
+      } else {
+        showToast(`Produit ${gameSelection.size} ${gameSelection.flavor} non trouvé.`, 'error');
+      }
+
+      // Réinitialisation de l'état du jeu pour la prochaine commande
+      setTimeout(() => {
+        dropzone.classList.remove('success-pop');
+        gameSelection.size = null;
+        gameSelection.flavor = null;
+
+        flavorsSection.classList.add('hidden');
+        sizesSection.classList.remove('hidden');
+        if (potStatus) potStatus.textContent = 'Glissez une taille ici';
+      }, 800);
+    }
+  });
+}
+
+// Appelez setupPopcornDragAndDrop() dans votre fonction init() de app.js
   async function loadProducts() {
     try {
       const res = await authFetch('/api/products');
@@ -1203,7 +1302,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         showToast(data.error || 'Erreur lors de la commande.', 'error');
         if (elements.placeOrderBtn) {
           elements.placeOrderBtn.disabled = false;
-          elements.placeOrderBtn.textContent = 'Valider & Générer le Pass Retrait 🎟️';
+          elements.placeOrderBtn.textContent = 'Valider et payer';
         }
         return;
       }
@@ -1237,7 +1336,7 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     } finally {
       if (elements.placeOrderBtn) {
         elements.placeOrderBtn.disabled = false;
-        elements.placeOrderBtn.textContent = 'Valider & Générer le Pass Retrait 🎟️';
+        elements.placeOrderBtn.textContent = 'Valider et payer';
       }
     }
   }
@@ -1288,7 +1387,7 @@ function isScreeningInCurrentWeek(dateStr) {
     if (!container) return;
 
     try {
-      const res = await fetch('/api/history');
+      const res = await authFetch('/api/history');
       const data = await res.json();
       state.screenings = data.screenings || [];
       renderHistory();
@@ -1326,11 +1425,9 @@ function renderHistory() {
         // Vérification si la projection a lieu cette semaine
         const isThisWeek = isScreeningInCurrentWeek(item.screening_date);
 
-        const buttonHtml = isThisWeek
-          ? `<button class="btn-suggest-primary btn-rate-movie" data-movie-id="${item.movie_id}" data-movie-title="${escapeHtml(item.title)}" style="font-size: 0.82rem; padding: 6px 14px;">
-              Donner mon avis
-             </button>`
-          : ''; // Masqué hors de la semaine de projection
+        const buttonHtml = `<button class="btn-suggest-primary btn-rate-movie" data-movie-id="${item.movie_id}" data-movie-title="${escapeHtml(item.title)}" style="font-size: 0.82rem; padding: 6px 14px;">
+          Donner mon avis
+        </button>`;
 
         const wordsHtml =
           item.words && item.words.length > 0

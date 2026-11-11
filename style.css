@@ -62,6 +62,11 @@ body {
   font-display: swap;
 }
 
+/* Règle globale pour masquer tous les éléments ayant la classe .hidden */
+.hidden {
+  display: none !important;
+}
+
 /* Base Bouton Utilitaire */
 .btn-utility {
   display: inline-flex;
@@ -397,84 +402,126 @@ body.menu-active .banner-wrapper {
   margin: 0;
   z-index: 5;
 }
+/* ==========================================================
+   MINI-JEU DRAG & DROP POPCORN
+   ========================================================== */
+.popcorn-game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin: 1.5rem auto;
+  max-width: 650px;
+}
 
-/* --- Cartes Popcorn --- */
-.snack-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.drag-section {
+  text-align: center;
+  width: 100%;
+}
+
+.game-step-title {
+  font-family: var(--font-vintage);
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.drag-items-group {
+  display: flex;
+  justify-content: center;
   gap: 1.5rem;
 }
 
-@media (max-width: 768px) {
-  .snack-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.snack-card {
-  position: relative;
-  background-color: var(--bg-ticket);
-  border: 1px solid var(--border-main);
-  border-radius: 4px;
-  padding: 1.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease-in-out;
-  overflow: hidden;
-  background: 
-    radial-gradient(circle at top left, transparent 8px, var(--bg-ticket) 9px),
-    radial-gradient(circle at top right, transparent 8px, var(--bg-ticket) 9px),
-    radial-gradient(circle at bottom left, transparent 8px, var(--bg-ticket) 9px),
-    radial-gradient(circle at bottom right, transparent 8px, var(--bg-ticket) 9px);
-}
-
-.snack-card .snack-name {
-  font-family: var(--font-vintage);
-  color: var(--text-main);
-  font-size: 1.2rem;
-  margin: 0.5rem 0 1rem;
-  text-align: center;
-}
-
-.snack-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
-}
-
-.snack-card .btn-add-snack,
-.snack-card .btn-secondary {
-  background-color: var(--btn-bg);
-  color: var(--text-light);
-  border: 1px solid var(--btn-border);
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-vintage);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  text-align: center;
-}
-
-.snack-card .btn-add-snack:hover,
-.snack-card .btn-secondary:hover {
-  background-color: var(--btn-hover);
-  color: #ffffff;
-  border-color: var(--btn-hover);
-}
-
-.snack-header {
+.drag-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  border-bottom: 2px dotted var(--border-main);
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  background-color: var(--bg-card);
+  border: 2px dashed var(--border-main);
+  border-radius: var(--radius-md);
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
-.snack-price-tag {
+.drag-item:active {
+  cursor: grabbing;
+}
+
+.drag-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.95);
+}
+
+.drag-icon {
+  font-size: 2rem;
+  pointer-events: none;
+}
+
+.drag-label {
+  font-family: var(--font-vintage);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-top: 4px;
+  pointer-events: none;
+}
+
+/* Zone du pot de popcorn */
+.popcorn-pot-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.popcorn-pot-dropzone {
+  width: 220px;
+  min-height: 220px;
+  border: 3px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-card-alt);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Effet de survol valide lors du drag */
+.popcorn-pot-dropzone.drag-over {
+  border-color: var(--border-main);
+  background-color: #dcd7d0;
+  transform: scale(1.06);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Animation de confirmation au dépôt réussi */
+.popcorn-pot-dropzone.success-pop {
+  animation: potPop 0.4s ease-in-out;
+}
+
+@keyframes potPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.pot-illustration img {
+  max-width: 120px;
+  height: auto;
+  pointer-events: none;
+}
+
+.pot-status-text {
   font-family: var(--font-typewriter);
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 0.85rem;
   color: var(--text-muted);
+  margin-top: 8px;
+  text-align: center;
 }
 
 /* ==========================================================================
@@ -495,11 +542,13 @@ body.menu-active .banner-wrapper {
   }
 }
 
-.tab-content {
+.tab-content,
+.tab-pane {
   display: none;
 }
 
-.tab-content.active {
+.tab-content.active,
+.tab-pane.active {
   display: block;
   animation: fadeInTab 0.3s ease-in-out;
 }
@@ -923,6 +972,57 @@ body.menu-active .banner-wrapper {
   padding: 4px 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+/* ==========================================================
+   ONGLETS D'AUTHENTIFICATION (CONNEXION / CRÉER UN COMPTE)
+   ========================================================== */
+.auth-tabs {
+  display: flex;
+  gap: 6px;
+  background-color: var(--bg-card-alt);
+  padding: 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin: 1.25rem 0 1.75rem 0;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-vintage);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-tab-btn:hover {
+  color: var(--text-main);
+  background-color: rgba(44, 38, 33, 0.06);
+}
+
+.auth-tab-btn.active {
+  background-color: var(--btn-bg);
+  color: var(--text-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* Champs de la modale de connexion */
+#auth-modal input {
+  background-color: var(--bg-card-alt) !important; /* Beige très clair (#F4F1ED) */
+  color: var(--text-main) !important;              /* Brun foncé (#2C2621) */
+  border: 1px solid var(--border-subtle);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* Couleur du texte d'exemple (placeholder) */
+#auth-modal input::placeholder {
+  color: var(--text-muted);                        /* Taupe / Brun moyen (#7A6F66) */
+  opacity: 0.8;
 }
 
 /* ==========================================================================
