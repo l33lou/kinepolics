@@ -1130,9 +1130,8 @@ class CinemaRequestHandler(http.server.BaseHTTPRequestHandler):
             return self.send_json({"error": "Please enter your name or nickname."}, 400)
         if not movie_id:
             return self.send_json({"error": "Movie ID is required."}, 400)
-        if rating < 0.5 or rating > 5.0:
-            return self.send_json({"error": "Rating must be between 1 and 5 stars."}, 400)
-
+        if rating is None or not (0 <= rating <= 10):
+            return self.send_json({"error": "La note doit être comprise entre 0 et 10"}, 400)
         conn = get_db()
         cursor = conn.cursor()
 

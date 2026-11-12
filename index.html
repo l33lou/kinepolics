@@ -135,15 +135,15 @@
         <div class="cart-items-list" id="cart-items-list"></div>
       </div>
 
-      <!-- Le footer de paiement est TOUJOURS enfermé à l'intérieur du drawer -->
-      <div class="cart-drawer-footer">
-        <div class="cart-total-row">
+      <div class="cart-total-bar">
           <span>Total :</span>
           <span class="cart-total-price" id="cart-total-display">€0.00</span>
-        </div>
+      </div>
 
+      <!-- Le footer de paiement est TOUJOURS enfermé à l'intérieur du drawer -->
+      <div class="cart-drawer-footer">
         <div class="cart-checkout-name">
-          <label for="checkout-name-input">Prénom / Pseudo pour le retrait :</label>
+          <label for="checkout-name-input">Prénom pour la commande :</label>
           <input type="text" id="checkout-name-input" placeholder="Connectez-vous pour commander..." readonly />
         </div>
 
@@ -152,13 +152,10 @@
           <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">Moyen de paiement :</label>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <label style="cursor: pointer; font-size: 0.85rem;">
-              <input type="radio" name="payment-method" value="carte" checked /> Carte
+              <input type="radio" name="payment-method" value="carte" checked /> Carte ou espèces
             </label>
             <label style="cursor: pointer; font-size: 0.85rem;">
-              <input type="radio" name="payment-method" value="especes" /> Espèces
-            </label>
-            <label style="cursor: pointer; font-size: 0.85rem;">
-              <input type="radio" name="payment-method" value="sumup" /> SumUp
+              <input type="radio" name="payment-method" value="sumup" /> Lien SumUp
             </label>
           </div>
         </div>
@@ -195,7 +192,9 @@
     <!-- ==================== MODAL : PROPOSER UN FILM ==================== -->
     <div class="modal-backdrop hidden" id="suggest-movie-modal">
       <div class="modal-card modal-suggest-card">
-        <div class="modal-icon">🎬</div>
+        <div class="modal-icon">
+          <img src="visuals/movie-clip.svg" alt="Icône cinéma" class="modal-icon-img" />
+        </div>
         <h2>Proposer un Film</h2>
         <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
           Ajoutez une idée de film pour la prochaine séance en amphi.
@@ -205,7 +204,7 @@
           <!-- Champ de recherche avec dropdown d'autocomplétion -->
           <div style="position: relative;">
             <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Rechercher un film (TMDB) *</label>
-            <input type="text" id="suggest-title-input" required autocomplete="off" placeholder="Tapez le titre (ex: Inception, Avatar...)" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+            <input type="text" id="suggest-title-input" required autocomplete="off" placeholder="Tapez le titre (ex: Inception, Avatar...)" style="width: 100%; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
             
             <!-- Dropdown des candidats TMDB -->
             <div id="suggest-results-dropdown" class="suggest-dropdown hidden"></div>
@@ -225,7 +224,7 @@
 
           <div>
             <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Proposé par (ton nom/pseudo)</label>
-            <input type="text" id="suggest-author-input" placeholder="Ex: Clara" style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+            <input type="text" id="suggest-author-input" placeholder="Ex: Clara" style="width: 100%; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
@@ -275,42 +274,38 @@
     <!-- ==================== MODAL : DONNER MON AVIS / NOTER UN FILM ==================== -->
     <div class="modal-backdrop hidden" id="review-modal">
       <div class="modal-card modal-review-card">
-        <div class="modal-icon">⭐</div>
-        <h2>LetterboCS — Donner mon avis</h2>
-        <h3 id="review-movie-title" style="color: var(--accent-gold); font-family: 'Limelight', serif; font-size: 1.15rem; margin-top: 0.35rem; margin-bottom: 1rem;">Film</h3>
+        <div class="modal-icon">
+          <img src="visuals/review.svg" alt="Icône cinéma" class="modal-icon-img" />
+        </div>
+        <h2 id="review-movie-title">Film</h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
+          Oui on copie Letterboxed et alors ?
+        </p>
 
         <form id="review-form" style="display: flex; flex-direction: column; gap: 1.1rem; text-align: left;">
           <input type="hidden" id="review-movie-id" value="" />
 
           <!-- Star Picker -->
           <div>
-            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">Votre note *</label>
-            <div class="star-picker" id="star-picker" role="radiogroup" aria-label="Note sur 5 étoiles">
-              <button type="button" class="star-picker-btn selected" data-star="1" aria-label="1 étoile">★</button>
-              <button type="button" class="star-picker-btn selected" data-star="2" aria-label="2 étoiles">★</button>
-              <button type="button" class="star-picker-btn selected" data-star="3" aria-label="3 étoiles">★</button>
-              <button type="button" class="star-picker-btn selected" data-star="4" aria-label="4 étoiles">★</button>
-              <button type="button" class="star-picker-btn selected" data-star="5" aria-label="5 étoiles">★</button>
-              <span class="star-picker-label" id="star-picker-label">5.0 / 5</span>
+            <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">Note</label>
+            <div class="star-picker-wrapper" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <div class="star-picker" id="star-picker" role="radiogroup" aria-label="Note de 0 à 10">
+                <!-- Généré dynamiquement par app.js -->
+              </div>
+              <span class="star-picker-label" id="star-picker-label" style="font-family: var(--font-typewriter); font-weight: 700;">7.5 / 10</span>
             </div>
-            <input type="hidden" id="review-rating-value" value="5" />
+            <input type="hidden" id="review-rating-value" value="7.5" />
           </div>
 
           <!-- Commentaire -->
           <div>
-            <label for="review-text-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Critique ou ressenti (optionnel)</label>
-            <textarea id="review-text-input" rows="3" placeholder="Ce que vous avez pensé de la séance, des scènes marquantes..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff; resize: vertical; font-family: inherit; font-size: 0.9rem;"></textarea>
-          </div>
-
-          <!-- Mot pour nuage de mots -->
-          <div>
-            <label for="review-word-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Un mot pour le nuage de mots (optionnel)</label>
-            <input type="text" id="review-word-input" maxlength="40" placeholder="Ex: Chef-d'œuvre, Intense, Émouvant..." style="width: 100%; background: #1a1d26; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; color: #fff;" />
+            <label for="review-text-input" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Commentaire</label>
+            <textarea id="review-text-input" rows="3" placeholder="Ce que vous avez pensé de la séance, des scènes marquantes..." style="width: 100%; background: #F4F1ED; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 12px; color: var(--text); resize: vertical; font-family: inherit; font-size: 0.9rem;"></textarea>
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
             <button type="button" class="btn-utility" id="close-review-modal-btn" style="flex: 1; justify-content: center;">Annuler</button>
-            <button type="submit" class="btn-suggest-primary" id="submit-review-btn" style="flex: 2; justify-content: center;">Publier mon avis ✨</button>
+            <button type="submit" class="btn-suggest-primary" id="submit-review-btn" style="flex: 2; justify-content: center;">Donner mon avis</button>
           </div>
         </form>
       </div>

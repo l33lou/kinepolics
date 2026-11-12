@@ -325,14 +325,30 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
     }
 
     // Star Picker in Review Modal
+    // Star Picker de 0 à 10 (par pas de 0.5 : ex. 7.5)
     if (elements.starPicker) {
-      elements.starPicker.querySelectorAll('.star-picker-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          const rating = parseInt(e.currentTarget.dataset.star, 10);
+      let starsHtml = '';
+      for (let i = 1; i <= 10; i++) {
+        const halfVal = i - 0.5;
+        const fullVal = i;
+        starsHtml += `
+          <span class="star-item" data-index="${i}">
+            ★
+            <span class="star-half-zone left" data-rating="${halfVal}" title="${halfVal} / 10"></span>
+            <span class="star-half-zone right" data-rating="${fullVal}" title="${fullVal} / 10"></span>
+          </span>
+        `;
+      }
+      elements.starPicker.innerHTML = starsHtml;
+
+      elements.starPicker.querySelectorAll('.star-half-zone').forEach((zone) => {
+        zone.addEventListener('click', (e) => {
+          const rating = parseFloat(e.currentTarget.dataset.rating);
           setReviewRating(rating);
         });
       });
     }
+
   }
 
   // ----------------- Authentication Logic -----------------
@@ -1145,7 +1161,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         <div class="cart-item-row">
           <div class="cart-item-info">
           <div class="cart-item-title" style="font-weight: 600;">${escapeHtml(it.name)}</div>
-          <div class="cart-item-price">€${(it.price * it.quantity).toFixed(2)} · €${it.price.toFixed(2)} / u</div>
           </div>
           <div class="cart-qty-controls">
             <button class="qty-btn btn-qty-minus" data-qty-id="${it.product_id}" data-delta="-1">−</button>
@@ -1351,11 +1366,21 @@ function renderHistory() {
 
     container.innerHTML = state.screenings
       .map((item) => {
-        const avg = item.avg_rating || 0;
+        const avg = item.avg_rating !== null && item.avg_rating !== undefined ? Number(item.avg_rating) : 0;
         const reviewCount = item.review_count || 0;
-        const starsFull = Math.round(avg);
-        const starsStr = avg > 0 ? '★'.repeat(starsFull) + '☆'.repeat(5 - starsFull) : '☆☆☆☆☆';
 
+        let starsHtml = '';
+        for (let i = 1; i <= 10; i++) {
+          if (reviewCount > 0 && avg >= i - 0.25) {
+            starsHtml += '<span class="history-star full">★</span>';
+          } else if (reviewCount > 0 && avg >= i - 0.75) {
+            starsHtml += '<span class="history-star half">★</span>';
+          } else {
+            starsHtml += '<span class="history-star">★</span>';
+          }
+        }
+
+        const formattedAvg = Number.isInteger(avg) ? avg : avg.toFixed(1);
         // 1. Génération conditionnelle de la date (rien si elle est absente ou vide)
         const dateHtml = item.screening_date && item.screening_date.trim() !== ''
           ? `<span class="history-date">${escapeHtml(item.screening_date)}</span>`
@@ -1389,8 +1414,8 @@ function renderHistory() {
           </div>
 
           <div class="history-rating-row">
-            <span class="history-stars">${starsStr}</span>
-            <span class="history-score">${avg > 0 ? `${avg.toFixed(1)} / 5.0` : ''}</span>
+            <span class="history-stars">${starsHtml}</span>
+            <span class="history-score">${reviewCount > 0 ? `${formattedAvg} / 10` : ''}</span>
             <span style="color: var(--text-muted); font-size: 0.85rem;">(${reviewCount})</span>
           </div>
 
@@ -1422,34 +1447,43 @@ function renderHistory() {
     }
 
     if (elements.reviewMovieId) elements.reviewMovieId.value = movieId;
-    if (elements.reviewMovieTitle) elements.reviewMovieTitle.textContent = `Avis sur « ${movieTitle} »`;
+    if (elements.reviewMovieTitle) elements.reviewMovieTitle.textContent = `Donner mon avis sur « ${movieTitle} »`;
     if (elements.reviewTextInput) elements.reviewTextInput.value = '';
     if (elements.reviewWordInput) elements.reviewWordInput.value = '';
 
-    setReviewRating(5);
+    setReviewRating(7.5); // Note par défaut au lancement de la modale
 
     if (elements.reviewModal) elements.reviewModal.classList.remove('hidden');
   }
 
-  function closeReviewModal() {
-    if (elements.reviewModal) elements.reviewModal.classList.add('hidden');
-  }
-
   function setReviewRating(rating) {
-    state.selectedReviewRating = rating;
-    if (elements.reviewRatingValue) elements.reviewRatingValue.value = rating;
-    if (elements.starPickerLabel) elements.starPickerLabel.textContent = `${rating}.0 / 5`;
+    // Sécurité : borne entre 0 et 10, arrondi au 0.5 le plus proche
+    const clamped = Math.max(0, Math.min(10, Math.round(rating * 2) / 2));
+    state.selectedReviewRating = clamped;
+
+    if (elements.reviewRatingValue) elements.reviewRatingValue.value = clamped;
+    if (elements.starPickerLabel) {
+      // Affiche "7.5 / 10" ou "8 / 10" proprement
+      const formatted = Number.isInteger(clamped) ? clamped : clamped.toFixed(1);
+      elements.starPickerLabel.textContent = `${formatted} / 10`;
+    }
 
     if (!elements.starPicker) return;
 
-    elements.starPicker.querySelectorAll('.star-picker-btn').forEach((star) => {
-      const starVal = parseInt(star.dataset.star, 10);
-      if (starVal <= rating) {
-        star.classList.add('selected');
-      } else {
-        star.classList.remove('selected');
+    elements.starPicker.querySelectorAll('.star-item').forEach((star) => {
+      const index = parseInt(star.dataset.index, 10);
+      star.classList.remove('full', 'half');
+
+      if (clamped >= index) {
+        star.classList.add('full');
+      } else if (clamped >= index - 0.5) {
+        star.classList.add('half');
       }
     });
+  }
+
+  function closeReviewModal() {
+    if (elements.reviewModal) elements.reviewModal.classList.add('hidden');
   }
 
   async function handleReviewSubmit(e) {

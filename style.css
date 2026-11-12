@@ -997,6 +997,33 @@ body.menu-active .banner-wrapper {
   font-style: italic;
 }
 
+
+/* Barre du Total au-dessus du footer du panier */
+.cart-total-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.5rem;
+  background-color: var(--bg-card);
+  border-top: 2px solid var(--border-main);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cart-total-bar span:first-child {
+  font-family: var(--font-vintage);
+  font-size: 1rem;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cart-total-bar .cart-total-price {
+  font-family: var(--font-typewriter);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
 /* Footer du panier */
 .cart-drawer-footer {
   flex-shrink: 0;
@@ -1006,22 +1033,6 @@ body.menu-active .banner-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.cart-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.cart-total-price {
-  font-family: var(--font-brand);
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--accent-gold);
-  letter-spacing: 0.03em;
 }
 
 /* Champ nom / pseudo */
@@ -1075,7 +1086,6 @@ body.menu-active .banner-wrapper {
   color: var(--text-main);
   cursor: pointer;
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 5px 10px;
   transition: border-color 0.15s, background 0.15s;
@@ -1155,8 +1165,16 @@ body.menu-active .banner-wrapper {
 }
 
 .modal-icon {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.modal-icon-img {
+  width: 56px;   /* Ajustez la taille selon vos besoins */
+  height: 56px;
+  object-fit: contain;
 }
 
 .modal-card h2 {
@@ -1569,6 +1587,71 @@ body.menu-active .banner-wrapper {
 
 .history-word-tag:last-child::after {
   content: "";
+}
+
+.star-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  user-select: none;
+}
+
+.star-item {
+  position: relative;
+  display: inline-block;
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(44, 38, 33, 0.22); /* Étoile vide */
+  transition: transform 0.1s ease;
+}
+
+.star-item:hover {
+  transform: scale(1.15);
+}
+
+.star-item.full {
+  color: var(--text-main); /* Étoile pleine */
+}
+
+.star-item.half {
+  background: linear-gradient(90deg, var(--text-main) 50%, rgba(44, 38, 33, 0.22) 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.star-half-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 2;
+}
+
+.star-half-zone.left { left: 0; }
+.star-half-zone.right { right: 0; }
+
+/* Étoiles dans l'historique LetterboCS */
+.history-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.history-star {
+  font-size: 1rem;
+  line-height: 1;
+  color: rgba(44, 38, 33, 0.22);
+}
+
+.history-star.full {
+  color: var(--text-main);
+}
+
+.history-star.half {
+  background: linear-gradient(90deg, var(--text-main) 50%, rgba(44, 38, 33, 0.22) 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 
