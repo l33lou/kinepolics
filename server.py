@@ -13,7 +13,7 @@ import sqlite3
 PORT = int(os.environ.get("PORT", 8000))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VISUALS_DIR = os.path.join(BASE_DIR, "visuals")
-ADMIN_PIN = "1234"  # Default association admin PIN
+ADMIN_PIN = "cleopatre100"  # Default association admin PIN
 
 # ==============================================================================
 # DATABASE SCHEMA, INITIALIZATION & SEEDING (Self-contained in server.py)
