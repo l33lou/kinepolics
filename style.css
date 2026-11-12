@@ -7,6 +7,8 @@
   --bg-ticket: #E7E4E1;         /* Fond beige papier du ticket */
   --bg-card: #FFFFFF;           /* Cartes et Modales en blanc pur */
   --bg-card-alt: #F4F1ED;       /* Fond beige très clair pour zones secondaires */
+  --bg-card-dark: #9f958d;       /* Fond beige très clair pour zones secondaires */
+
   --bg-wordcloud: #e1ddda;      /* Fond pour le nuage de mots */
 
   /* Couleurs de texte & typographie */
@@ -195,11 +197,40 @@ body.menu-active .banner-wrapper {
 /* ==========================================================================
    VINTAGE STAR-SEPARATED MENU
    ========================================================================== */
+/* 1. Activer le positionnement relatif sur le menu */
 .vintage-nav-container {
+  position: relative;
   width: 100%;
   max-width: 640px;
   margin: 2rem auto;
   text-align: center;
+}
+
+/* 2. Créer les deux encoches latérales fixes alignées sur les barres du menu */
+.vintage-nav-container::before,
+.vintage-nav-container::after {
+  content: '';
+  position: absolute;
+  top: 50%;                     /* Centrage vertical au milieu des barres du menu */
+  transform: translateY(-50%);
+  width: 50px;                  /* Diamètre du trou */
+  height: 50px;
+  background-color: var(--bg-main); /* Couleur de fond sombre hors-ticket (#000000) */
+  border-radius: 50%;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Perforation du bord GAUCHE du ticket */
+.vintage-nav-container::before {
+  left: calc(-1 * ((100vw - 100%) / 2)); /* Ajustement selon la disposition ou bord fixe */
+  /* Si le menu est centré dans un ticket à largeur fixe, utilisez une marge négative directe : */
+  left: -125px; /* Ajustez cette valeur pour caler l'encoche au bord gauche du ticket */
+}
+
+/* Perforation du bord DROIT du ticket */
+.vintage-nav-container::after {
+  right: -125px; /* Ajustez cette valeur pour caler l'encoche au bord droit du ticket */
 }
 
 .separator-line {
@@ -443,15 +474,50 @@ body.menu-active .banner-wrapper {
 
 .snack-card {
   position: relative;
-  background-color: var(--bg-card);
-  border: 2px solid var(--border-main);
-  border-radius: var(--radius-md);
+  
+  /* 1. Définition de la couleur de fond du thème et de l'image de texture */
+  background-color: var(--bg-card-dark); /* Fond beige/papier (#F4F1ED) */
+  background-image: url('visuals/texture-carton.png'); /* Remplacez par le nom de votre fichier de texture */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* border: 1px solid var(--border-subtle);
+  
+  /* 2. Fusion de la texture avec la couleur de fond */
+  background-blend-mode: soft-light; /* ou 'overlay' / 'soft-light' selon le rendu désiré */
+  
   padding: 1.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  /* ----------------------------------------------------
+     EFFET PERFORATION ENCOCHÉE (BORDER-RADIUS NÉGATIF)
+     ---------------------------------------------------- */
+  /* Rayon des encoches (ex: 12px) et taille des trous */
+  --corner-radius: 12px;
+  
+  /* Masque qui découpe les 4 coins du rectangle en cercle */
+  -webkit-mask: radial-gradient(circle var(--corner-radius) at top left, transparent 98%, #000 100%) top left,
+                radial-gradient(circle var(--corner-radius) at top right, transparent 98%, #000 100%) top right,
+                radial-gradient(circle var(--corner-radius) at bottom left, transparent 98%, #000 100%) bottom left,
+                radial-gradient(circle var(--corner-radius) at bottom right, transparent 98%, #000 100%) bottom right;
+  -webkit-mask-size: 51% 51%;
+  -webkit-mask-repeat: no-repeat;
+  
+  mask: radial-gradient(circle var(--corner-radius) at top left, transparent 98%, #000 100%) top left,
+        radial-gradient(circle var(--corner-radius) at top right, transparent 98%, #000 100%) top right,
+        radial-gradient(circle var(--corner-radius) at bottom left, transparent 98%, #000 100%) bottom left,
+        radial-gradient(circle var(--corner-radius) at bottom right, transparent 98%, #000 100%) bottom right;
+  mask-size: 51% 51%;
+  mask-repeat: no-repeat;
+}
+
+/* Survol de la carte ticket */
+.snack-card:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25)); /* Utiliser drop-shadow à la place de box-shadow pour épouser les découpes du masque */
 }
 
 .snack-card:hover {
@@ -468,20 +534,15 @@ body.menu-active .banner-wrapper {
   margin-bottom: 10px;
 }
 
-.snack-emoji {
-  font-size: 2.2rem;
-  line-height: 1;
-}
-
 .snack-price-tag {
   font-family: var(--font-typewriter);
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--accent-gold);
-  background-color: var(--bg-card-alt);
+  color: var(--text-muted);
+  /* background-color: var(--bg-card-alt);
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-subtle); */
 }
 
 .snack-name {
@@ -490,7 +551,7 @@ body.menu-active .banner-wrapper {
   font-size: 1.15rem;
   margin: 0.5rem 0;
   text-align: center;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 
@@ -1352,6 +1413,7 @@ body.menu-active .banner-wrapper {
   background-position: top left, top right, bottom left, bottom right;
   background-size: 51% 51%;
   background-repeat: no-repeat;
+  background-attachment: local;
   width: calc(100% - 40px);
   margin: 20px auto; 
   max-width: 850px; 
@@ -1360,21 +1422,6 @@ body.menu-active .banner-wrapper {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); 
   padding-bottom: 60px;
 }
-
-.website-ticket::before,
-.website-ticket::after {
-  content: '';
-  position: absolute;
-  top: 800px;
-  width: 60px;
-  height: 60px;
-  background-color: var(--bg-main);
-  border-radius: 50%;
-  z-index: 50;
-}
-
-.website-ticket::before { left: -30px; }
-.website-ticket::after { right: -30px; }
 
 /* Bouton Spectateur */
 .spectateur-label {

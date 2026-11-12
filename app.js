@@ -889,7 +889,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         (group) => `
       <div class="snack-card">
         <div class="snack-header">
-          <span class="snack-emoji">${group.emoji || popcornIconSvg}</span>
           <span class="snack-price-tag">€${group.price.toFixed(2)}</span>
         </div>
 
@@ -920,7 +919,6 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
         (prod) => `
       <div class="snack-card" data-product-id="${prod.id}">
         <div class="snack-header">
-          <span class="snack-emoji">${prod.emoji || popcornIconSvg}</span>
           <span class="snack-price-tag">€${prod.price.toFixed(2)}</span>
         </div>
         <h3 class="snack-name">${escapeHtml(prod.name)}</h3>
@@ -1146,8 +1144,8 @@ const API_BASE_URL = (window.location.hostname === "localhost" || window.locatio
           (it) => `
         <div class="cart-item-row">
           <div class="cart-item-info">
-            <div class="cart-item-title">${it.emoji || '🍿'} ${escapeHtml(it.name)}</div>
-            <div class="cart-item-price">€${(it.price * it.quantity).toFixed(2)} · €${it.price.toFixed(2)} / u</div>
+          <div class="cart-item-title" style="font-weight: 600;">${escapeHtml(it.name)}</div>
+          <div class="cart-item-price">€${(it.price * it.quantity).toFixed(2)} · €${it.price.toFixed(2)} / u</div>
           </div>
           <div class="cart-qty-controls">
             <button class="qty-btn btn-qty-minus" data-qty-id="${it.product_id}" data-delta="-1">−</button>
